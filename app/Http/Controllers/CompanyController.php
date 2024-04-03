@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Company;
+use App\Models\CompanyUser;
 use App\Models\User;
+
 
 use Illuminate\Support\Facades\Hash;
 
@@ -27,7 +29,7 @@ class CompanyController extends Controller
             'status' => 'required|in:A,I',
             'admin.first_name' => 'required|string|max:255',
             'admin.last_name' => 'required|string|max:255',
-            'admin.email' => 'required|email|unique:users,email',
+            'admin.email' => 'required|email',
             'admin.address' => 'required|string|max:255',
             'admin.city' => 'required|string|max:255',
             'admin.dob' => 'required|date',
@@ -46,6 +48,8 @@ class CompanyController extends Controller
         }
 
         $company->save();
+
+
         $admin = new User();
         $admin->first_name = $request->input('admin.first_name');
         $admin->last_name = $request->input('admin.last_name');
@@ -56,9 +60,15 @@ class CompanyController extends Controller
         $admin->dob = $request->input('admin.dob');
         $admin->password = Hash::make($admin->password);
         $admin->save();
-
         $company->admin()->associate($admin);
         $company->save();
+
+
+        $companyUser = new CompanyUser();
+        $companyUser->company_id = $company->id;
+        $companyUser->user_id = $admin->id;
+        $companyUser->save();
+    
 
         return response()->json($company, 201);
     }

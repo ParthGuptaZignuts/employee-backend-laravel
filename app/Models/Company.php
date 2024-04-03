@@ -26,6 +26,6 @@ class Company extends Model
 
     public function companyUsers()
     {
-        return $this->hasMany(CompanyUser::class);
+        return $this->hasMany(CompanyUser::class)->withPivot('joining_date','emp_number');
     }
 }

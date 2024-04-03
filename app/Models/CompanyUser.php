@@ -14,9 +14,8 @@ class CompanyUser extends Model
     protected $fillable = [
         'user_id',
         'company_id',
-        'salary',
         'joining_date',
-        'emp_no',
+        'emp_number',
     ];
     public function user()
     {
