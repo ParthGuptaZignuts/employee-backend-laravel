@@ -8,24 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Company extends Model
 {
     use HasFactory;
-    protected $fillable = [
-        'name',
-        'location',
-        'company_email',
-        'status',
-        'website',
-        'logo_url',
-        'status',
-    ];
+    protected $fillable = ['name', 'email', 'website', 'logo', 'address', 'status'];
     
     public function admin()
     {
-        return $this->belongsTo(User::class)->where('type', 'CA');
+        return $this->hasOne(User::class)->where('type', 'CA');
     }
 
-
-    public function companyUsers()
-    {
-        return $this->hasMany(CompanyUser::class)->withPivot('joining_date','emp_number');
-    }
 }

@@ -7,11 +7,13 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 
+require_once app_path('Http/Helpers/APIResponse.php');
+
+
 class AuthenticationController extends Controller
 {
     public function createUser(Request $request)
     {
-
         $validator = $this->validate($request, [
             'first_name' => 'required|string',
             'last_name' => 'required|string',
@@ -26,16 +28,11 @@ class AuthenticationController extends Controller
             'password' => Hash::make($validator["password"]),
         ]);
 
-        return response()->json([
-            'message' => 'User Created Successfully',
-            'data' => $user
-        ], 200);
+        return ok('User Created Successfully', $user);
     }
-
 
     public function loginUser(Request $request)
     {
-
         $this->validate($request, [
             'email'    => 'required|email|exists:users',
             'password' => 'required|string',
@@ -46,39 +43,24 @@ class AuthenticationController extends Controller
         ]);
 
         if (!Auth::attempt($request->only(['email', 'password']))) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Email & Password does not match',
-            ], 401);
+            return error('Email & Password does not match', [], 'unauthenticated');
         }
 
         $user = User::where('email', $request->email)->first();
 
-        return response()->json([
-            'status' => true,
-            'message' => 'User Logged In Successfully',
-            'user' => $user,
-            'token' => $user->createToken("API TOKEN")->plainTextToken
-        ], 200);
+        return ok('User Logged In Successfully', ['user' => $user, 'token' => $user->createToken("API TOKEN")->plainTextToken]);
     }
 
     public function getUser(Request $request)
     {
         $user = $request->user();
 
-        return response()->json([
-            'status' => true,
-            'message' => 'User details retrieved successfully',
-            'user' => $user,
-        ], 200);
+        return ok('User details retrieved successfully', $user);
     }
 
     public function logout(Request $request)
     {
         $request->user()->tokens()->delete();
-        return response()->json([
-            'status' => true,
-            'message' => 'User logged out successfully',
-        ], 200);
+        return ok('User logged out successfully');
     }
 }

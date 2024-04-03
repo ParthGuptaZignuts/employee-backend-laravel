@@ -18,15 +18,10 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'first_name',
-        'last_name',
-        'email',
-        'password',
-        'type',
-        'address',
-        'city',
-        'dob',
+        'first_name', 'last_name', 'email', 'phone', 'address', 'dob', 'city', 'password', 'type', 'company_id', 'joining_date', 'employee_number'
     ];
+
+
 
     /**
      * The attributes that should be hidden for serialization.
@@ -48,12 +43,9 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    // public function company()
-    // {
-    //     return $this->belongsTo(Company::class,'company_id');
-    // }
     public function company()
     {
-        return $this->hasOne(Company::class, 'id');
+        return $this->belongsTo(Company::class);
     }
+
 }

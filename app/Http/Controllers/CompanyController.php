@@ -4,25 +4,40 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Company;
-use App\Models\CompanyUser;
 use App\Models\User;
-
-
+use App\Models\Preference;
 use Illuminate\Support\Facades\Hash;
+
+require_once app_path('Http/Helpers/APIResponse.php');
 
 class CompanyController extends Controller
 {
     public function index()
     {
         $companies = Company::all();
-        return response()->json($companies, 200);
+        return ok('Companies retrieved successfully', $companies);
     }
+
+    public function generateEmployeeNumber(): string
+{
+    $latestEmployee = User::latest()->first();
+
+    if (!$latestEmployee) {
+        return '00000'; // Start with 00000 if no employee exists
+    } else {
+        $latestEmployeeNumber = (int) $latestEmployee->emp_number;
+        $nextEmployeeNumber = str_pad($latestEmployeeNumber + 1, 5, '0', STR_PAD_LEFT);
+        $latestEmployee->employee_number = $nextEmployeeNumber;
+        $latestEmployee->save();
+        return $nextEmployeeNumber;
+    }
+}
 
     public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:64',
-            'company_email' => 'required|email|max:128',
+            'email' => 'required|email|max:128',
             'website' => 'nullable|string|max:255',
             'address' => 'required|string|max:255',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -35,49 +50,36 @@ class CompanyController extends Controller
             'admin.dob' => 'required|date',
         ]);
 
+        // Create the company
         $company = new Company();
-        $company->name = $request->name;
-        $company->company_email = $request->company_email;
-        $company->website = $request->website;
-        $company->address = $request->address;
-        $company->status = $request->status;
-
-        if ($request->hasFile('logo')) {
-            $logoPath = $request->file('logo')->store('public/logos');
-            $company->logo_url = basename($logoPath);
-        }
-
+        $company->fill($request->all());
         $company->save();
 
-
+        // Create the admin user
         $admin = new User();
-        $admin->first_name = $request->input('admin.first_name');
-        $admin->last_name = $request->input('admin.last_name');
+        $admin->fill($request->input('admin'));
         $admin->type = "CA";
-        $admin->email = $request->input('admin.email');
-        $admin->address = $request->input('admin.address');
-        $admin->city = $request->input('admin.city');
-        $admin->dob = $request->input('admin.dob');
-        $admin->password = Hash::make($admin->password);
+        $admin->password = Hash::make($request->input('admin.password')); // Hash the password
+        $admin->company_id = $company->id; // Assign the company ID to the admin
         $admin->save();
-        $company->admin()->associate($admin);
-        $company->save();
 
+        // Generate and save employee number for admin
+        $admin->employee_number = $this->generateEmployeeNumber();
+        $admin->save();
 
-        $companyUser = new CompanyUser();
-        $companyUser->company_id = $company->id;
-        $companyUser->user_id = $admin->id;
-        $companyUser->save();
-    
+        $preferences = Preference::firstOrNew(['code' => $admin->id]);
+        $preferences->value = $admin->employee_number;
+        $preferences->save();
 
-        return response()->json($company, 201);
+        return ok('Company created successfully', $company, 201);
     }
+
 
     public function update(Request $request, string $id)
     {
-        $validator = $this->validate($request, [
+        $validator = $request->validate([
             'name' => 'required|string|max:64',
-            'company_email' => 'required|email|max:128' . $id,
+            'email' => 'required|email|max:128' . $id,
             'website' => 'nullable|string|max:255',
             'address' => 'required|string|max:255',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -89,9 +91,15 @@ class CompanyController extends Controller
             'admin.city' => 'required|string|max:255',
             'admin.dob' => 'required|date',
         ]);
-    
+
         $company = Company::findOrFail($id);
         $company->fill($validator);
+
+        if ($request->hasFile('logo')) {
+            $logoPath = $request->file('logo')->store('public/logos');
+            $company->logo_url = basename($logoPath);
+        }
+
         $company->save();
 
         if ($request->has('admin')) {
@@ -100,40 +108,38 @@ class CompanyController extends Controller
             if ($admin) {
                 $admin->update($adminData);
             } else {
-                return response()->json(['error' => 'Admin user not found'], 404);
+                // If admin doesn't exist, create a new one
+                $admin = new User();
+                $admin->fill($adminData);
+                $admin->type = "CA";
+                $admin->password = Hash::make($adminData['password']);
+                $admin->company_id = $company->id;
+                $admin->save();
             }
         }
-        if ($request->has('company_user')) {
-            $companyUserData = $validator['company_user'];
-            $companyUser = $company->companyUser()->first(); 
-            if ($companyUser) {
-                $companyUser->update($companyUserData);
-            } else {
-                return response()->json(['error' => 'Company user not found'], 404);
-            }
-        }
-    
-        return response()->json(['message' => 'Company updated successfully', 'company' => $company], 200);
+
+        return ok('Company updated successfully', $company, 200);
     }
-
-
 
     public function show($companyId)
     {
         $company = Company::with('admin')->find($companyId);
 
         if (!$company) {
-            return response()->json(['error' => 'Company not found'], 404);
+            return error('Company not found', [], 'notfound');
         }
 
-        return response()->json($company, 200);
+        return ok('Company retrieved successfully', $company);
     }
 
     public function destroy(string $id)
     {
         $company = Company::findOrFail($id);
+        $admin = $company->admin;
+        if ($admin) {
+            $admin->delete();
+        }
         $company->delete();
-
-        return response()->json(['message' => 'Company deleted successfully'], 200);
+        return ok('Company and its associated admin deleted successfully');
     }
 }

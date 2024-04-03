@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('companies', function (Blueprint $table) {
             $table->id();
             $table->string('name', 64);
-            $table->string('company_email', 128);
+            $table->string('email', 128);
             $table->string('website', 255)->nullable();
-            $table->string('logo_url', 255)->nullable();
-            $table->string('address', 255);
+            $table->string('logo', 255)->nullable();
+            $table->string('address', 256);
             $table->string('status');
             $table->timestamps();
         });
