@@ -8,5 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class Preference extends Model
 {
     use HasFactory;
-    protected $fillable = ['value'];
+    protected $fillable = ['code', 'value'];
+    public $timestamps = false;
 }

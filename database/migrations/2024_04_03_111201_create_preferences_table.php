@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('preferences', function (Blueprint $table) {
             $table->increments('code');
             $table->string('value', 64);
-            $table->timestamps();
         });
     }
 
