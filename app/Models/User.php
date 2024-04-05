@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable,SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -21,6 +22,10 @@ class User extends Authenticatable
         'first_name', 'last_name', 'email', 'phone', 'address', 'dob', 'city', 'password', 'type', 'company_id', 'joining_date', 'employee_number'
     ];
 
+    public function hardDelete()
+    {
+        return parent::delete();
+    }
 
 
     /**

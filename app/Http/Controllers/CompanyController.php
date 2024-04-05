@@ -19,25 +19,24 @@ class CompanyController extends Controller
     }
 
     public function generateEmployeeNumber(): string
-{
-    $latestEmployeeNumberPref = Preference::where('code', 'EMP')->first();
+    {
+        $latestEmployeeNumberPref = Preference::where('code', 'EMP')->first();
 
-    if ($latestEmployeeNumberPref) {
-        $latestEmployeeNumber = (int)$latestEmployeeNumberPref->value;
-        $nextEmployeeNumber = 'EMP' . str_pad($latestEmployeeNumber + 1, 5, '0', STR_PAD_LEFT);
-        $latestEmployeeNumberPref->value = $latestEmployeeNumber + 1;
-        $latestEmployeeNumberPref->save();
-    } else {
-        // If no preference found, create a new one
-        $nextEmployeeNumber = 'EMP00001';
-        $latestEmployeeNumberPref = new Preference();
-        $latestEmployeeNumberPref->code = 'EMP';
-        $latestEmployeeNumberPref->value = 1;
-        $latestEmployeeNumberPref->save();
+        if ($latestEmployeeNumberPref) {
+            $latestEmployeeNumber = (int)$latestEmployeeNumberPref->value;
+            $nextEmployeeNumber = 'EMP' . str_pad($latestEmployeeNumber + 1, 5, '0', STR_PAD_LEFT);
+            $latestEmployeeNumberPref->value = $latestEmployeeNumber + 1;
+            $latestEmployeeNumberPref->save();
+        } else {
+            $nextEmployeeNumber = 'EMP00001';
+            $latestEmployeeNumberPref = new Preference();
+            $latestEmployeeNumberPref->code = 'EMP';
+            $latestEmployeeNumberPref->value = 1;
+            $latestEmployeeNumberPref->save();
+        }
+
+        return $nextEmployeeNumber;
     }
-
-    return $nextEmployeeNumber;
-}
 
 
     public function store(Request $request)
@@ -57,20 +56,18 @@ class CompanyController extends Controller
             'admin.dob' => 'required|date',
         ]);
 
-        // Create the company
+
         $company = new Company();
         $company->fill($request->all());
         $company->save();
 
-        // Create the admin user
         $admin = new User();
         $admin->fill($request->input('admin'));
         $admin->type = "CA";
-        $admin->password = Hash::make($request->input('admin.password')); // Hash the password
-        $admin->company_id = $company->id; // Assign the company ID to the admin
+        $admin->password = Hash::make($request->input('admin.password'));
+        $admin->company_id = $company->id;
         $admin->save();
 
-        // Generate and save employee number for admin
         $admin->employee_number = $this->generateEmployeeNumber();
         $admin->save();
 
@@ -135,14 +132,25 @@ class CompanyController extends Controller
         return ok('Company retrieved successfully', $company);
     }
 
-    public function destroy(string $id)
+    public function destroy(string $id, Request $request)
     {
         $company = Company::findOrFail($id);
         $admin = $company->admin;
+
         if ($admin) {
-            $admin->delete();
+            if ($request->has('hard_delete') && $request->hard_delete) {
+                $admin->hardDelete(); // Hard delete admin user
+            } else {
+                $admin->delete(); // Soft delete admin user
+            }
         }
-        $company->delete();
+
+        if ($request->has('hard_delete') && $request->hard_delete) {
+            $company->forceDelete(); // Hard delete company
+        } else {
+            $company->delete(); // Soft delete company
+        }
+
         return ok('Company and its associated admin deleted successfully');
     }
 }

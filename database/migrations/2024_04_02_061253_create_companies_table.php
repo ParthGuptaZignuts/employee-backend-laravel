@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('logo', 255)->nullable();
             $table->string('address', 256);
             $table->string('status');
+            $table->softDeletes();
             $table->timestamps();
         });
     }
