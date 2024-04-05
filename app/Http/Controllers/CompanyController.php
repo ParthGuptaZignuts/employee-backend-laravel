@@ -20,18 +20,25 @@ class CompanyController extends Controller
 
     public function generateEmployeeNumber(): string
 {
-    $latestEmployee = User::latest()->first();
+    $latestEmployeeNumberPref = Preference::where('code', 'EMP')->first();
 
-    if (!$latestEmployee) {
-        return '00000'; // Start with 00000 if no employee exists
+    if ($latestEmployeeNumberPref) {
+        $latestEmployeeNumber = (int)$latestEmployeeNumberPref->value;
+        $nextEmployeeNumber = 'EMP' . str_pad($latestEmployeeNumber + 1, 5, '0', STR_PAD_LEFT);
+        $latestEmployeeNumberPref->value = $latestEmployeeNumber + 1;
+        $latestEmployeeNumberPref->save();
     } else {
-        $latestEmployeeNumber = (int) $latestEmployee->emp_number;
-        $nextEmployeeNumber = str_pad($latestEmployeeNumber + 1, 5, '0', STR_PAD_LEFT);
-        $latestEmployee->employee_number = $nextEmployeeNumber;
-        $latestEmployee->save();
-        return $nextEmployeeNumber;
+        // If no preference found, create a new one
+        $nextEmployeeNumber = 'EMP00001';
+        $latestEmployeeNumberPref = new Preference();
+        $latestEmployeeNumberPref->code = 'EMP';
+        $latestEmployeeNumberPref->value = 1;
+        $latestEmployeeNumberPref->save();
     }
+
+    return $nextEmployeeNumber;
 }
+
 
     public function store(Request $request)
     {
@@ -66,10 +73,6 @@ class CompanyController extends Controller
         // Generate and save employee number for admin
         $admin->employee_number = $this->generateEmployeeNumber();
         $admin->save();
-
-        $preferences = Preference::firstOrNew(['code' => $admin->id]);
-        $preferences->value = $admin->employee_number;
-        $preferences->save();
 
         return ok('Company created successfully', $company, 201);
     }

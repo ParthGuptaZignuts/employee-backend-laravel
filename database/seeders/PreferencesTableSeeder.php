@@ -14,7 +14,8 @@ class PreferencesTableSeeder extends Seeder
     public function run(): void
     {
         Preference::create([
-            'value' => '0000',
+            'code' => 'EMP',
+            'value' => 0,
         ]);
     }
 }

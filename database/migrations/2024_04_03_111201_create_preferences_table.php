@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('preferences', function (Blueprint $table) {
-            $table->increments('code');
-            $table->string('value', 64);
+            $table->id();
+            $table->string('code',10);
+            $table->integer('value');
         });
     }
 
