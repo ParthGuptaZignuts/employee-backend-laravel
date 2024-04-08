@@ -46,7 +46,7 @@ class CompanyController extends Controller
             'email' => 'required|email|max:128',
             'website' => 'nullable|string|max:255',
             'address' => 'required|string|max:255',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif',
             'status' => 'required|in:A,I',
             'admin.first_name' => 'required|string|max:255',
             'admin.last_name' => 'required|string|max:255',
@@ -58,8 +58,14 @@ class CompanyController extends Controller
 
 
         $company = new Company();
-        $company->fill($request->all());
+        $company->fill($request->except('logo'));
         $company->save();
+
+        if ($request->hasFile('logo')) {
+            $logoPath = $request->file('logo')->store('public/logos');
+            $company->logo = basename($logoPath);
+            $company->save();
+        }
 
         $admin = new User();
         $admin->fill($request->input('admin'));
