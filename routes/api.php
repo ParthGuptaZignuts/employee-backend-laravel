@@ -25,6 +25,8 @@ Route::post('/login', [AuthenticationController::class, 'loginUser']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthenticationController::class, 'logout']);
     Route::get('/user', [AuthenticationController::class, 'getUser']);
+    Route::get('/statistics', [StatisticsController::class, 'getStatistics']);
+
 
     // company routes
     Route::middleware([UserType::class . ':SA'])->group(function(){
