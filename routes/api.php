@@ -45,6 +45,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('job/{id}',[JobDescriptionController::class, 'update']);
         Route::delete('job/{id}',[JobDescriptionController::class, 'destroy']);
     });
+
+    // employee description
+    Route::middleware([UserType::class . ':SA,CA'])->group(function(){
+        Route::post('employee/create',[EmployeeController::class, 'store']);
+        Route::get('employees',[EmployeeController::class, 'index']);
+        Route::get('employee/{id}',[EmployeeController::class, 'show']);
+        Route::post('employee/{id}',[EmployeeController::class, 'update']);
+        Route::delete('employee/{id}',[EmployeeController::class, 'destroy']);
+    });
 });
 
 

@@ -10,16 +10,12 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\InvitationMail;
 
+
 require_once app_path('Http/Helpers/APIResponse.php');
 
 class CompanyController extends Controller
-{
-    public function index()
-    {
-        $companies = Company::all();
-        return ok('Companies retrieved successfully', $companies);
-    }
-
+{   
+   
     public function generateEmployeeNumber(): string
     {
         $latestEmployeeNumberPref = Preference::where('code', 'EMP')->first();
@@ -39,6 +35,15 @@ class CompanyController extends Controller
 
         return $nextEmployeeNumber;
     }
+
+
+    public function index()
+    {
+        $companies = Company::all();
+        return ok('Companies retrieved successfully', $companies);
+    }
+
+    
 
 
     public function store(Request $request)
