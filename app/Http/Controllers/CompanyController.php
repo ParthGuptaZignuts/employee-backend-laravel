@@ -7,6 +7,8 @@ use App\Models\Company;
 use App\Models\User;
 use App\Models\Preference;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\InvitationMail;
 
 require_once app_path('Http/Helpers/APIResponse.php');
 
@@ -77,6 +79,8 @@ class CompanyController extends Controller
         $admin->employee_number = $this->generateEmployeeNumber();
         $admin->save();
 
+        Mail::to($admin['email'])->send(new InvitationMail($admin['first_name'],$admin['last_name'],$admin['email'],$company['name'],$company['website']));
+        
         return ok('Company created successfully', $company, 201);
     }
 
@@ -92,7 +96,7 @@ class CompanyController extends Controller
             'status' => 'required|in:A,I',
             'admin.first_name' => 'required|string|max:255',
             'admin.last_name' => 'required|string|max:255',
-            'admin.email' => 'required|email|unique:users,email',
+            'admin.email' => 'required|email',
             'admin.address' => 'required|string|max:255',
             'admin.city' => 'required|string|max:255',
             'admin.dob' => 'required|date',
@@ -103,7 +107,7 @@ class CompanyController extends Controller
 
         if ($request->hasFile('logo')) {
             $logoPath = $request->file('logo')->store('public/logos');
-            $company->logo_url = basename($logoPath);
+            $company->logo = basename($logoPath);
         }
 
         $company->save();
