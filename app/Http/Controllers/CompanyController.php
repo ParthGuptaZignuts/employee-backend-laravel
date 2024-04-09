@@ -80,7 +80,7 @@ class CompanyController extends Controller
         $admin->save();
 
         Mail::to($admin['email'])->send(new InvitationMail($admin['first_name'],$admin['last_name'],$admin['email'],$company['name'],$company['website']));
-        
+
         return ok('Company created successfully', $company, 201);
     }
 
@@ -144,12 +144,12 @@ class CompanyController extends Controller
 
     public function destroy(string $id, Request $request)
     {
-        $company = Company::findOrFail($id);
+        $company = Company::withTrashed()->findOrFail($id);
         $admin = $company->admin;
 
         if ($admin) {
             if ($request->has('hard_delete') && $request->hard_delete) {
-                $admin->hardDelete(); // Hard delete admin user
+                $admin->forceDelete(); // Hard delete admin user
             } else {
                 $admin->delete(); // Soft delete admin user
             }

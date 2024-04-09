@@ -32,7 +32,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware([UserType::class . ':SA'])->group(function(){
         Route::post('/companies/create',[CompanyController::class, 'store']);
         Route::post('/companies/{id}',[CompanyController::class, 'update']);
-        Route::delete('/companies/{id}', [CompanyController::class, 'destroy']);
+        Route::post('companies/delete/{id}', [CompanyController::class, 'destroy']);
         Route::get('/companies',[CompanyController::class, 'index']);
         Route::get('/companies/{id}',[CompanyController::class, 'show']);
     });
