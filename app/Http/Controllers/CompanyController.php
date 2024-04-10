@@ -168,4 +168,11 @@ class CompanyController extends Controller
 
         return ok('Company and its associated admin deleted successfully');
     }
+
+    public function getAllCompanies()
+    {
+        $companies = Company::select('id', 'name')->get();
+        return response()->json($companies);
+    }
+
 }

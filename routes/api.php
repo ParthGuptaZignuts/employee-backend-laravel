@@ -53,6 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('employee/{id}',[EmployeeController::class, 'show']);
         Route::post('employee/{id}',[EmployeeController::class, 'update']);
         Route::delete('employee/{id}',[EmployeeController::class, 'destroy']);
+        Route::get('getallcompanies', [CompanyController::class, 'getAllCompanies']);
     });
 });
 

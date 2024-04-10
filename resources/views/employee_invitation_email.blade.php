@@ -59,7 +59,6 @@
         <p>We are delighted to inform you that you have been selected as an employee at {{$name}}. Your employee number is: <b>{{$employee_number}}</b>.</p>
         <p>We have chosen you because we believe your expertise and dedication will contribute significantly to our team's success.</p>
         <p>As an employee, you'll play a crucial role in helping {{$name}} achieve its goals.</p>
-        <p>Here is the company's website for you to visit: <a href="{{$website}}">{{website}}</a></p>
         <p>Use the following credentials to log in and explore our platform:</p>
         <ul>
             <li><strong>Email:</strong> {{$email}}</li>

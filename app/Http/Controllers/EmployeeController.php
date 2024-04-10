@@ -59,7 +59,6 @@ class EmployeeController extends Controller
             'first_name' => 'required|string',
             'last_name' => 'required|string',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string',
             'address' => 'required|string',
             'city' => 'required|string',
             'dob' => 'required|date',
@@ -82,7 +81,7 @@ class EmployeeController extends Controller
             $user->first_name = $request->first_name;
             $user->last_name = $request->last_name;
             $user->email = $request->email;
-            $user->password = Hash::make($request->password);
+            $user->password = Hash::make("password");
             $user->address = $request->address;
             $user->city = $request->city;
             $user->dob = $request->dob;
@@ -118,7 +117,6 @@ class EmployeeController extends Controller
                 'first_name' => 'required|string',
                 'last_name' => 'required|string',
                 'email' => 'required|email|unique:users,email,' . $id,
-                'password' => 'sometimes|required|string',
                 'address' => 'required|string',
                 'city' => 'required|string',
                 'dob' => 'required|date',
@@ -133,7 +131,6 @@ class EmployeeController extends Controller
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
                 'email' => $request->email,
-                'password' => $request->has('password') ? Hash::make($request->password) : $user->password,
                 'address' => $request->address,
                 'city' => $request->city,
                 'dob' => $request->dob,
