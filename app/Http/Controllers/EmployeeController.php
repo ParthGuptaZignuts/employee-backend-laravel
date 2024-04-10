@@ -39,10 +39,11 @@ class EmployeeController extends Controller
     public function index()
     {
         if (auth()->user()->type === 'SA') {
-            $employees = User::whereIn('type', ['CA', 'E'])->get();
+            $employees = User::with('company:id,name')->whereIn('type', ['CA', 'E'])->get();
             return ok('Employees retrieved successfully', $employees);
         } elseif (auth()->user()->type === 'CA') {
-            $employees = User::where('company_id', auth()->user()->company_id)
+            $employees = User::with('company:id,name')
+                ->where('company_id', auth()->user()->company_id)
                 ->whereIn('type', ['CA', 'E'])
                 ->get();
             return ok('Employees retrieved successfully', $employees);
@@ -147,7 +148,7 @@ class EmployeeController extends Controller
 
     public function show(string $id)
     {
-        $user = User::find($id);
+        $user = User::with('company:id,name')->find($id);
 
         if (!$user) {
             return error('User not found', [], 'notfound');
