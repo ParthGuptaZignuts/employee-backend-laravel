@@ -7,9 +7,11 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Preference;
+use App\Models\Company;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\InvitationMail;
+use App\Mail\EmployeeInvitaion;
 
+require_once app_path('Http/Helpers/APIResponse.php');
 
 class EmployeeController extends Controller
 {
@@ -33,24 +35,22 @@ class EmployeeController extends Controller
 
         return $nextEmployeeNumber;
     }
+
     public function index()
     {
         if (auth()->user()->type === 'SA') {
             $employees = User::whereIn('type', ['CA', 'E'])->get();
-            return response()->json($employees);
+            return ok('Employees retrieved successfully', $employees);
         } elseif (auth()->user()->type === 'CA') {
             $employees = User::where('company_id', auth()->user()->company_id)
                 ->whereIn('type', ['CA', 'E'])
                 ->get();
-            return response()->json($employees);
+            return ok('Employees retrieved successfully', $employees);
         } else {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return error('Unauthorized', [], 'forbidden');
         }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -66,7 +66,12 @@ class EmployeeController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 422);
+            return error('Validation Failed. Please check the request attributes and try again.', $validator->errors()->toArray(), 'validation');
+        }
+
+        $company = Company::find($request->company_id);
+        if (!$company) {
+            return error('Company not found', [], 'notfound');
         }
 
         if (auth()->user()->type === 'SA') {
@@ -84,9 +89,18 @@ class EmployeeController extends Controller
             $user->employee_number = $this->generateEmployeeNumber();
             $user->save();
 
-            return response()->json(['message' => 'User created successfully'], 201);
+            Mail::to($user['email'])->send(new EmployeeInvitaion(
+                $user['first_name'],
+                $user['last_name'],
+                $user['email'],
+                $user['employee_number'],
+                $company['name'],
+                $company['website']
+            ));
+
+            return ok('User created successfully');
         } else {
-            return response()->json(['error' => 'Only users with type SA can create employees'], 403);
+            return error('Only users with type SA can create employees', [], 'forbidden');
         }
     }
 
@@ -95,7 +109,7 @@ class EmployeeController extends Controller
         $user = User::find($id);
 
         if (!$user) {
-            return response()->json(['error' => 'User not found'], 404);
+            return error('User not found', [], 'notfound');
         }
 
         if (auth()->user()->type === 'SA' || (auth()->user()->type === 'CA' && auth()->user()->company_id === $user->company_id)) {
@@ -111,7 +125,7 @@ class EmployeeController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return response()->json(['error' => $validator->errors()], 422);
+                return error('Validation Failed. Please check the request attributes and try again.', $validator->errors()->toArray(), 'validation');
             }
 
             $user->update([
@@ -125,43 +139,45 @@ class EmployeeController extends Controller
                 'joining_date' => $request->joining_date,
             ]);
 
-            return response()->json(['message' => 'User updated successfully'], 200);
+            return ok('User updated successfully');
         } else {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return error('Unauthorized', [], 'forbidden');
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
         $user = User::find($id);
 
         if (!$user) {
-            return response()->json(['error' => 'User not found'], 404);
+            return error('User not found', [], 'notfound');
         }
 
         if (auth()->user()->type === 'SA' || (auth()->user()->type === 'CA' && auth()->user()->company_id === $user->company_id)) {
-            return response()->json(['data' => $user], 200);
+            return ok('User retrieved successfully', $user);
         } else {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return error('Unauthorized', [], 'forbidden');
         }
     }
 
-    public function destroy(string $id)
+    public function destroy(string $id, Request $request)
     {
         $user = User::find($id);
 
         if (!$user) {
-            return response()->json(['error' => 'User not found'], 404);
+            return error('User not found', [], 'notfound');
         }
 
         if (auth()->user()->type === 'SA' || (auth()->user()->type === 'CA' && auth()->user()->company_id === $user->company_id)) {
-            $user->delete();
-            return response()->json(['message' => 'User deleted successfully'], 200);
+            if ($request->has('permanent_delete')) {
+                $user->forceDelete();
+                return ok('User permanently deleted successfully');
+            } else {
+                $user->delete();
+                return ok('User soft deleted successfully');
+            }
         } else {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return error('Unauthorized', [], 'forbidden');
         }
     }
 }
