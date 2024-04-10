@@ -12,12 +12,14 @@ class StatisticsController extends Controller
     public function getStatistics()
     {
         $totalCompanies = Company::count();
-        $totalEmployees = User::whereIn('type', ['CE', 'CA'])->count();
+        $totalCompanyAdmin = User::whereIn('type', ['CA'])->count();
+        $totalEmployees = User::whereIn('type', ['E'])->count();
         $totalJobs = JobDescription::count();
 
         return response()->json([
             'total_companies' => $totalCompanies,
             'total_employees' => $totalEmployees,
+            'total_ca' => $totalCompanyAdmin,
             'total_jobs' => $totalJobs,
         ]);
     }
