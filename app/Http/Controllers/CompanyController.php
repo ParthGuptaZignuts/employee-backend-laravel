@@ -15,8 +15,8 @@ use App\Mail\InvitationMail;
 require_once app_path('Http/Helpers/APIResponse.php');
 
 class CompanyController extends Controller
-{   
-   
+{
+
     public function generateEmployeeNumber(): string
     {
         $latestEmployeeNumberPref = Preference::where('code', 'EMP')->first();
@@ -44,7 +44,7 @@ class CompanyController extends Controller
         return ok('Companies retrieved successfully', $companies);
     }
 
-    
+
 
 
     public function store(Request $request)
@@ -96,7 +96,7 @@ class CompanyController extends Controller
             $admin->email,
             $company->name,
             $company->website,
-            $resetLink 
+            $resetLink
         ));
 
         return ok('Company created successfully', $company, 201);
@@ -160,56 +160,58 @@ class CompanyController extends Controller
         return ok('Company retrieved successfully', $company);
     }
 
+    public function destroy(string $id, Request $request)
+    {
+        $company = Company::withTrashed()->findOrFail($id);
+        $admin = $company->admin;
+
+        if ($admin) {
+            if ($request->has('hard_delete') && $request->hard_delete) {
+                $admin->forceDelete(); // Hard delete admin user
+            } else {
+                $admin->delete(); // Soft delete admin user
+            }
+        }
+
+        if ($request->has('hard_delete') && $request->hard_delete) {
+            $company->forceDelete(); // Hard delete company
+        } else {
+            $company->delete(); // Soft delete company
+        }
+
+        return ok('Company and its associated admin deleted successfully');
+    }
+
+    // with job description deleted successfully
     // public function destroy(string $id, Request $request)
     // {
     //     $company = Company::withTrashed()->findOrFail($id);
-    //     $admin = $company->admin;
 
+    //     $admin = $company->admin;
     //     if ($admin) {
     //         if ($request->has('hard_delete') && $request->hard_delete) {
-    //             $admin->forceDelete(); // Hard delete admin user
+    //             $admin->forceDelete();
     //         } else {
-    //             $admin->delete(); // Soft delete admin user
+    //             $admin->delete();
     //         }
     //     }
 
     //     if ($request->has('hard_delete') && $request->hard_delete) {
-    //         $company->forceDelete(); // Hard delete company
+    //         $company->jobDescriptions()->forceDelete();
+    //         $company->forceDelete();
     //     } else {
+    //         $company->jobDescriptions()->delete(); // Soft delete job descriptions
     //         $company->delete(); // Soft delete company
     //     }
 
-    //     return ok('Company and its associated admin deleted successfully');
+    //     return ok('Company, its associated admin, and job descriptions deleted successfully');
     // }
 
-    public function destroy(string $id, Request $request)
-{
-    $company = Company::withTrashed()->findOrFail($id);
 
-    $admin = $company->admin;
-    if ($admin) {
-        if ($request->has('hard_delete') && $request->hard_delete) {
-            $admin->forceDelete();
-        } else {
-            $admin->delete();
-        }
-    }
-
-    if ($request->has('hard_delete') && $request->hard_delete) {
-        $company->jobDescriptions()->forceDelete();
-        $company->forceDelete(); 
-    } else {
-        $company->jobDescriptions()->delete(); // Soft delete job descriptions
-        $company->delete(); // Soft delete company
-    }
-
-    return ok('Company, its associated admin, and job descriptions deleted successfully');
-}
 
     public function getAllCompanies()
     {
         $companies = Company::select('id', 'name')->get();
         return response()->json($companies);
     }
-
 }
