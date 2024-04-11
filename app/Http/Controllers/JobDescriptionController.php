@@ -30,7 +30,7 @@ class JobDescriptionController extends Controller
         $rules = [
             'title' => 'required|string',
             'salary' => 'nullable|numeric',
-            'employment_type' => 'nullable|string',
+            'employment_type' => 'required|string',
             'experience_required' => 'nullable|string',
             'skills_required' => 'nullable|string',
             'posted_date' => 'nullable|date', 

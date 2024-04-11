@@ -16,8 +16,8 @@ class CreateJobDescriptionsTable extends Migration
             $table->string('employment_type', 64);
             $table->string('experience_required', 64);
             $table->string('skills_required', 64)->nullable();
-            $table->date('posted_date');
-            $table->date('expiry_date');
+            $table->date('posted_date')->default(now())->format('Y-m-d')->nullable();
+            $table->date('expiry_date')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
