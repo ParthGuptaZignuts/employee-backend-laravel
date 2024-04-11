@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Preference;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Password;
 use App\Mail\InvitationMail;
 
 
@@ -77,14 +78,26 @@ class CompanyController extends Controller
         $admin = new User();
         $admin->fill($request->input('admin'));
         $admin->type = "CA";
-        $admin->password = Hash::make($request->input('admin.password'));
+        $admin->password = Hash::make("password");
         $admin->company_id = $company->id;
         $admin->save();
 
         $admin->employee_number = $this->generateEmployeeNumber();
         $admin->save();
 
-        Mail::to($admin['email'])->send(new InvitationMail($admin['first_name'],$admin['last_name'],$admin['email'],$company['name'],$company['website']));
+        $token = Password::createToken($admin);
+        $resetLink = url('http://localhost:5173/resetPassword/' . $token);
+
+        // Mail::to($admin['email'])->send(new InvitationMail($admin['first_name'],$admin['last_name'],$admin['email'],$company['name'],$company['website']));
+
+        Mail::to($admin->email)->send(new InvitationMail(
+            $admin->first_name,
+            $admin->last_name,
+            $admin->email,
+            $company->name,
+            $company->website,
+            $resetLink 
+        ));
 
         return ok('Company created successfully', $company, 201);
     }

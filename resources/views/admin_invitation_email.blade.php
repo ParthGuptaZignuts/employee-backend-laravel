@@ -61,8 +61,8 @@
         <p>Click the button below to get started:</p>
         <a href="{{ $website }}" class="btn">Log In</a>
 
-        {{-- <p>Click the button below to reset the password:</p>
-        <a href="{{ $resetlink }}" class="btn">Reset Password</a> --}}
+        <p>Click the button below to reset the password:</p>
+        <a href="{{ $resetLink }}" class="btn">Reset Password</a>
 
         <p>If you have any questions or need assistance, feel free to reach out to our support team at <a href="mailto:support@example.com">support@example.com</a>.</p>
         <p class="footer">Looking forward to seeing you on board!<br>Best regards,<br>Team Track</p>
