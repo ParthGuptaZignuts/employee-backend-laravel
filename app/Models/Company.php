@@ -16,6 +16,11 @@ class Company extends Model
         return $this->hasOne(User::class)->where('type', 'CA');
     }
 
+    public function jobDescriptions()
+    {
+        return $this->hasMany(JobDescription::class);
+    }
+    
     public function hardDelete()
     {
         return parent::delete();

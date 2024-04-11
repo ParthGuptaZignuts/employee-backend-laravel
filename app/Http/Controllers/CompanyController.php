@@ -160,27 +160,51 @@ class CompanyController extends Controller
         return ok('Company retrieved successfully', $company);
     }
 
+    // public function destroy(string $id, Request $request)
+    // {
+    //     $company = Company::withTrashed()->findOrFail($id);
+    //     $admin = $company->admin;
+
+    //     if ($admin) {
+    //         if ($request->has('hard_delete') && $request->hard_delete) {
+    //             $admin->forceDelete(); // Hard delete admin user
+    //         } else {
+    //             $admin->delete(); // Soft delete admin user
+    //         }
+    //     }
+
+    //     if ($request->has('hard_delete') && $request->hard_delete) {
+    //         $company->forceDelete(); // Hard delete company
+    //     } else {
+    //         $company->delete(); // Soft delete company
+    //     }
+
+    //     return ok('Company and its associated admin deleted successfully');
+    // }
+
     public function destroy(string $id, Request $request)
-    {
-        $company = Company::withTrashed()->findOrFail($id);
-        $admin = $company->admin;
+{
+    $company = Company::withTrashed()->findOrFail($id);
 
-        if ($admin) {
-            if ($request->has('hard_delete') && $request->hard_delete) {
-                $admin->forceDelete(); // Hard delete admin user
-            } else {
-                $admin->delete(); // Soft delete admin user
-            }
-        }
-
+    $admin = $company->admin;
+    if ($admin) {
         if ($request->has('hard_delete') && $request->hard_delete) {
-            $company->forceDelete(); // Hard delete company
+            $admin->forceDelete();
         } else {
-            $company->delete(); // Soft delete company
+            $admin->delete();
         }
-
-        return ok('Company and its associated admin deleted successfully');
     }
+
+    if ($request->has('hard_delete') && $request->hard_delete) {
+        $company->jobDescriptions()->forceDelete();
+        $company->forceDelete(); 
+    } else {
+        $company->jobDescriptions()->delete(); // Soft delete job descriptions
+        $company->delete(); // Soft delete company
+    }
+
+    return ok('Company, its associated admin, and job descriptions deleted successfully');
+}
 
     public function getAllCompanies()
     {

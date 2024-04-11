@@ -29,4 +29,5 @@ class JobDescription extends Model
     {
         return parent::delete();
     }
+
 }
