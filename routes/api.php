@@ -42,8 +42,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('job/create',[JobDescriptionController::class, 'store']);
         Route::get('jobs',[JobDescriptionController::class, 'index']);
         Route::get('job/{id}',[JobDescriptionController::class, 'show']);
-        Route::put('job/{id}',[JobDescriptionController::class, 'update']);
-        Route::delete('job/{id}',[JobDescriptionController::class, 'destroy']);
+        Route::put('job/update/{id}',[JobDescriptionController::class, 'update']);
+        Route::delete('job/delete/{id}',[JobDescriptionController::class, 'destroy']);
     });
 
     // employee description

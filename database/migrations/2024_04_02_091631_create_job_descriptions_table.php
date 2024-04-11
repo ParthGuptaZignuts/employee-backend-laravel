@@ -18,6 +18,7 @@ class CreateJobDescriptionsTable extends Migration
             $table->string('skills_required', 64)->nullable();
             $table->date('posted_date');
             $table->date('expiry_date');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class JobDescription extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
     protected $fillable = [
         'company_id',
         'title',
@@ -18,4 +19,9 @@ class JobDescription extends Model
         'posted_date',
         'expiry_date',
     ];
+    
+    public function hardDelete()
+    {
+        return parent::delete();
+    }
 }
