@@ -10,12 +10,17 @@ class JobDescriptionController extends Controller
 
     public function index(Request $request)
     {
+        $jobDescriptions = JobDescription::query();
+    
+        // If the user is a super admin, retrieve all job descriptions with company names
         if ($request->user()->type === 'SA') {
-            $jobDescriptions = JobDescription::all();
+            $jobDescriptions = $jobDescriptions->with('company')->get();
         } else {
-            $jobDescriptions = JobDescription::where('company_id', $request->user()->company_id)->get();
+            // If the user is not a super admin, filter job descriptions by company_id and retrieve company names
+            $jobDescriptions = $jobDescriptions->where('company_id', $request->user()->company_id)
+                ->with('company')->get();
         }
-
+    
         return response()->json($jobDescriptions);
     }
 
@@ -27,7 +32,7 @@ class JobDescriptionController extends Controller
             'salary' => 'nullable|numeric',
             'employment_type' => 'nullable|string',
             'experience_required' => 'nullable|string',
-            'required_skills' => 'nullable|string',
+            'skills_required' => 'nullable|string',
             'posted_date' => 'nullable|date', 
             'expiry_date' => 'nullable|date',
         ];
@@ -72,7 +77,7 @@ class JobDescriptionController extends Controller
             'salary' => 'sometimes|nullable|numeric',
             'employment_type' => 'sometimes|nullable|string',
             'experience_required' => 'sometimes|nullable|string',
-            'required_skills' => 'sometimes|nullable|string',
+            'skills_required' => 'sometimes|nullable|string',
             'expiry_date' => 'sometimes|nullable|date',
         ];
 

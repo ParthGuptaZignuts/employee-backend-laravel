@@ -20,6 +20,11 @@ class JobDescription extends Model
         'expiry_date',
     ];
     
+    public function company()
+{
+    return $this->belongsTo(Company::class, 'company_id');
+}
+
     public function hardDelete()
     {
         return parent::delete();
