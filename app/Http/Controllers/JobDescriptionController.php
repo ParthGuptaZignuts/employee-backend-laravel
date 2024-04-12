@@ -123,7 +123,7 @@ class JobDescriptionController extends Controller
         }
 
         // Perform soft delete or permanent delete based on request parameter
-        if ($request->has('permanent_delete') && $request->permanent_delete) {
+        if ($request->has('permanent_delete') && $request->boolean('permanent_delete')) {
             $jobDescription->forceDelete(); // Permanent delete
             return response()->json(['message' => 'Job permanently deleted successfully'], 200);
         } else {

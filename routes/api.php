@@ -44,7 +44,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('jobs',[JobDescriptionController::class, 'index']);
         Route::get('job/{id}',[JobDescriptionController::class, 'show']);
         Route::post('job/update/{id}',[JobDescriptionController::class, 'update']);
-        Route::delete('job/delete/{id}',[JobDescriptionController::class, 'destroy']);
+        Route::post('job/delete/{id}',[JobDescriptionController::class, 'destroy']);
     });
 
     // employee description
@@ -53,7 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('employees',[EmployeeController::class, 'index']);
         Route::get('employee/{id}',[EmployeeController::class, 'show']);
         Route::post('employee/{id}',[EmployeeController::class, 'update']);
-        Route::delete('employee/{id}',[EmployeeController::class, 'destroy']);
+        Route::post('employee/{id}',[EmployeeController::class, 'destroy']);
         Route::get('getallcompanies', [CompanyController::class, 'getAllCompanies']);
     });
 });

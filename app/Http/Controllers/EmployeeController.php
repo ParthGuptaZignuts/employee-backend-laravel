@@ -158,6 +158,29 @@ class EmployeeController extends Controller
         }
     }
 
+
+
+    // public function destroy(string $id, Request $request)
+    // {
+    //     $user = User::find($id);
+
+    //     if (!$user) {
+    //         return error('User not found', [], 'notfound');
+    //     }
+
+    //     if (auth()->user()->type === 'SA' || (auth()->user()->type === 'CA' && auth()->user()->company_id === $user->company_id)) {
+    //         if ($request->has('permanent_delete')) {
+    //             $user->forceDelete(); // This performs a permanent delete
+    //             return ok('User permanently deleted successfully');
+    //         } else {
+    //             $user->delete(); // This performs a soft delete
+    //             return ok('User soft deleted successfully');
+    //         }
+    //     } else {
+    //         return error('Unauthorized', [], 'forbidden');
+    //     }
+    // }
+
     public function destroy(string $id, Request $request)
     {
         $user = User::find($id);
@@ -167,7 +190,7 @@ class EmployeeController extends Controller
         }
 
         if (auth()->user()->type === 'SA' || (auth()->user()->type === 'CA' && auth()->user()->company_id === $user->company_id)) {
-            if ($request->has('permanent_delete')) {
+            if ($request->has('permanent_delete') && $request->boolean('permanent_delete')) {
                 $user->forceDelete();
                 return ok('User permanently deleted successfully');
             } else {
