@@ -67,50 +67,32 @@ class AuthenticationController extends Controller
         $request->user()->tokens()->delete();
         return ok('User logged out successfully');
     }
-    
-    // public function resetPassword(Request $request)
-    // {
-    //     $validator = Validator::make($request->all(), [
-    //         'email' => 'required|email',
-    //     ]);
 
-    //     if ($validator->fails()) {
-    //         return response()->json(['errors' => $validator->errors()], 422);
-    //     }
-
-    //     $user = User::where('email', $request->email)->first();
-
-    //     if (!$user) {
-    //         return response()->json(['message' => 'User not found'], 404);
-    //     }
-
-    //     $token = Password::createToken($user);
-    //     $resetLink = url('http://localhost:5173/resetPassword/' . $token);
-
-    //     // Send the email
-    //     $user->notify(new ResetPasswordNotification($resetLink));
-
-    //     // Return the response with the email address
-    //     return response()->json([
-    //         'message' => 'Password reset link sent to the user email',
-    //         'email' => $user->email
-    //     ]);
-    // }
-
-    public function fromPasswordGetUser(Request $request)
+    public function resetPasswordFromToken(Request $request)
     {
-        $token = $request->input('token'); // Assuming you are passing the token via request
-    
-        // Validate the token
-        $broker = app(PasswordBrokerManager::class)->broker();
-        $user = $broker->retrieveByToken($token);
-    
+        $validator = Validator::make($request->all(), [
+            'token' => 'required|string',
+            'password' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $token = $request->input('token');
+        $password = $request->input('password');
+
+        $user = app(PasswordBrokerManager::class)->broker()->getUser(['token' => $token]);
+
         if ($user) {
-            $email = $user->email;
-            $firstName = $user->first_name;
-            return ok('User details retrieved successfully', $user);
+            $user->password = Hash::make($password);
+            $user->save();
+
+            app(PasswordBrokerManager::class)->broker()->deleteToken($user);
+
+            return ok('Password reset successfully');
         } else {
-            return error('User details not found for the given token', [], 'notfound');
+            return error('User not found for the given token', [], 'notfound');
         }
     }
 }
