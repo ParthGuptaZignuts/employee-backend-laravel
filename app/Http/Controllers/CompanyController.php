@@ -175,9 +175,11 @@ class CompanyController extends Controller
         }
 
         if ($request->has('force_delete') && $request->force_delete) {
+            $company->employees()->forceDelete();
             $company->jobDescriptions()->forceDelete();
             $company->forceDelete();
         } else {
+            $company->employees()->delete(); // Soft delete employees
             $company->jobDescriptions()->delete(); // Soft delete job descriptions
             $company->delete(); // Soft delete company
         }

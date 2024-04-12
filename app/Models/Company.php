@@ -16,6 +16,11 @@ class Company extends Model
         return $this->hasOne(User::class)->where('type', 'CA');
     }
 
+    public function employees()
+{
+    return $this->hasMany(User::class)->where('type', 'E');
+}
+
     public function jobDescriptions()
     {
         return $this->hasMany(JobDescription::class);
