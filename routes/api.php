@@ -20,7 +20,7 @@ use App\Http\Middleware\UserType;
 // user registration public routes
 Route::post('/register', [AuthenticationController::class, 'createUser']);
 Route::post('/login', [AuthenticationController::class, 'loginUser']);
-Route::post('/password/reset', [AuthenticationController::class, 'resetPasswordFromToken']);
+Route::post('/password/reset', [AuthenticationController::class, 'resetPassword']);
 
 // user registration protected routes
 Route::middleware('auth:sanctum')->group(function () {

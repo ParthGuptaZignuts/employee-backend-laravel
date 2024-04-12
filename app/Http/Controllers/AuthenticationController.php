@@ -7,9 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Facades\Validator;
-use App\Notifications\ResetPasswordNotification;
-use Illuminate\Auth\Passwords\PasswordBrokerManager;
+use Illuminate\Auth\Events\PasswordReset;
 
 require_once app_path('Http/Helpers/APIResponse.php');
 
@@ -68,31 +66,25 @@ class AuthenticationController extends Controller
         return ok('User logged out successfully');
     }
 
-    public function resetPasswordFromToken(Request $request)
+    public function resetPassword(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $request->validate([
+            'email' => 'required|email',
             'token' => 'required|string',
-            'password' => 'required|string',
+            'password' => 'required|string|confirmed',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($user, $password) {
+                $user->password = Hash::make($password);
+                $user->save();
+                event(new PasswordReset($user));
+            }
+        );
 
-        $token = $request->input('token');
-        $password = $request->input('password');
-
-        $user = app(PasswordBrokerManager::class)->broker()->getUser(['token' => $token]);
-
-        if ($user) {
-            $user->password = Hash::make($password);
-            $user->save();
-
-            app(PasswordBrokerManager::class)->broker()->deleteToken($user);
-
-            return ok('Password reset successfully');
-        } else {
-            return error('User not found for the given token', [], 'notfound');
-        }
+        return $status === Password::PASSWORD_RESET
+            ? ok('Password reset successfully.')
+            : error('Invalid token or email. Please request a new reset link.', [], 'error');
     }
 }
