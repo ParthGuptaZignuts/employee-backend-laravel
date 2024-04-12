@@ -21,13 +21,13 @@ use App\Http\Middleware\UserType;
 Route::post('/register', [AuthenticationController::class, 'createUser']);
 Route::post('/login', [AuthenticationController::class, 'loginUser']);
 Route::post('/password/reset', [AuthenticationController::class, 'resetPassword']);
+Route::get('/password/reset/getUser', [AuthenticationController::class, 'fromPasswordGetUser']);
 
 // user registration protected routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthenticationController::class, 'logout']);
     Route::get('/user', [AuthenticationController::class, 'getUser']);
     Route::get('/statistics', [StatisticsController::class, 'getStatistics']);
-
 
     // company routes
     Route::middleware([UserType::class . ':SA'])->group(function(){

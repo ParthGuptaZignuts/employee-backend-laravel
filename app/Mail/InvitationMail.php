@@ -22,13 +22,14 @@ class InvitationMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(string $first_name,string $last_name, string $website,  string $email,string $company , $resetLink)
+    
+    public function __construct(string $first_name,string $last_name, string $email, string $company ,  string $website, $resetLink)
     {
         $this->first_name = $first_name;
         $this->last_name = $last_name;
-        $this->website = $website;
         $this->email = $email;
         $this->company=$company;
+        $this->website = $website;
         $this->resetLink = $resetLink;
     }
 

@@ -88,8 +88,6 @@ class CompanyController extends Controller
         $token = Password::createToken($admin);
         $resetLink = url('http://localhost:5173/resetPassword/' . $token);
 
-        // Mail::to($admin['email'])->send(new InvitationMail($admin['first_name'],$admin['last_name'],$admin['email'],$company['name'],$company['website']));
-
         Mail::to($admin->email)->send(new InvitationMail(
             $admin->first_name,
             $admin->last_name,

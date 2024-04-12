@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 use App\Notifications\ResetPasswordNotification;
+use Illuminate\Auth\Passwords\PasswordBrokerManager;
 
 require_once app_path('Http/Helpers/APIResponse.php');
 
@@ -67,32 +68,49 @@ class AuthenticationController extends Controller
         return ok('User logged out successfully');
     }
     
-    public function resetPassword(Request $request)
+    // public function resetPassword(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'email' => 'required|email',
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return response()->json(['errors' => $validator->errors()], 422);
+    //     }
+
+    //     $user = User::where('email', $request->email)->first();
+
+    //     if (!$user) {
+    //         return response()->json(['message' => 'User not found'], 404);
+    //     }
+
+    //     $token = Password::createToken($user);
+    //     $resetLink = url('http://localhost:5173/resetPassword/' . $token);
+
+    //     // Send the email
+    //     $user->notify(new ResetPasswordNotification($resetLink));
+
+    //     // Return the response with the email address
+    //     return response()->json([
+    //         'message' => 'Password reset link sent to the user email',
+    //         'email' => $user->email
+    //     ]);
+    // }
+
+    public function fromPasswordGetUser(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+        $token = $request->input('token'); // Assuming you are passing the token via request
+    
+        // Validate the token
+        $broker = app(PasswordBrokerManager::class)->broker();
+        $user = $broker->retrieveByToken($token);
+    
+        if ($user) {
+            $email = $user->email;
+            $firstName = $user->first_name;
+            return ok('User details retrieved successfully', $user);
+        } else {
+            return error('User details not found for the given token', [], 'notfound');
         }
-
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
-        }
-
-        $token = Password::createToken($user);
-        $resetLink = url('http://localhost:5173/resetPassword/' . $token);
-
-        // Send the email
-        $user->notify(new ResetPasswordNotification($resetLink));
-
-        // Return the response with the email address
-        return response()->json([
-            'message' => 'Password reset link sent to the user email',
-            'email' => $user->email
-        ]);
     }
 }
