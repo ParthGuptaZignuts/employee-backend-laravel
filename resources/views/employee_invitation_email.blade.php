@@ -64,8 +64,12 @@
             <li><strong>Email:</strong> {{$email}}</li>
             <li><strong>Password:</strong> password</li>
         </ul>
-        <p>If you have any questions or need assistance, feel free to reach out to our support team at <a href="mailto:support@example.com">support@example.com</a>.</p>
-        <p class="footer">We look forward to having you on our team!<br>Best regards,<br>Team Track</p>
+
+        <p>Click the button below to reset the password:</p>
+        <a href="{{ $resetLink }}" class="btn">Reset Password</a>
+
+        <p>If you have any questions or need assistance, feel free to reach out to our support team at <a href="mailto:admin@company.com">admin@company.com</a>.</p>
+        <p class="footer">We look forward to having you on our team!<br>Best regards,<br>EMS</p>
     </div>
 </body>
 </html>

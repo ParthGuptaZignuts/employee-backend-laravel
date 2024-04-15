@@ -10,6 +10,7 @@ use App\Models\Preference;
 use App\Models\Company;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\EmployeeInvitaion;
+use Illuminate\Support\Facades\Password;
 
 require_once app_path('Http/Helpers/APIResponse.php');
 
@@ -84,7 +85,7 @@ class EmployeeController extends Controller
             return error('Company not found', [], 'notfound');
         }
 
-        if (auth()->user()->type === 'SA') {
+        if (auth()->user()->type === 'SA' || (auth()->user()->type === 'CA' && auth()->user()->company_id === $request->company_id)) {
             $user = new User();
             $user->type = 'E';
             $user->company_id = $request->company_id;
@@ -99,13 +100,17 @@ class EmployeeController extends Controller
             $user->employee_number = $this->generateEmployeeNumber();
             $user->save();
 
+            $token = Password::createToken($user);
+            $resetLink = url('http://localhost:5173/resetPassword/' . $token);
+
             Mail::to($user['email'])->send(new EmployeeInvitaion(
                 $user['first_name'],
                 $user['last_name'],
                 $user['email'],
                 $user['employee_number'],
                 $company['name'],
-                $company['website']
+                $company['website'],
+                $resetLink
             ));
 
             return ok('User created successfully');

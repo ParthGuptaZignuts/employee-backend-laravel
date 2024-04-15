@@ -19,11 +19,12 @@ class EmployeeInvitaion extends Mailable
     public $employee_number; 
     public $name ;
     public $website;
+    public $resetLink;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(string $first_name,string $last_name, $email , string $employee_number , string $name, string $website)
+    public function __construct(string $first_name,string $last_name, $email , string $employee_number , string $name, string $website,$resetLink)
     {
         $this->first_name = $first_name;
         $this->last_name = $last_name;
@@ -31,6 +32,7 @@ class EmployeeInvitaion extends Mailable
         $this->employee_number = $employee_number;
         $this->name = $name;
         $this->website = $website;
+        $this->resetLink = $resetLink;
     }
 
     /**
