@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use App\Mail\InvitationMail;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Pagination\Paginator;
 
 
 require_once app_path('Http/Helpers/APIResponse.php');
@@ -40,7 +42,11 @@ class CompanyController extends Controller
 
     public function index()
     {
-        $companies = Company::all();
+        // $perPage = request()->query('perPage', 1);
+        // $companies = Company::paginate($perPage);
+        // $companies = Company::paginate(1);
+
+        $companies = Company::all();  
         return ok('Companies retrieved successfully', $companies);
     }
 
@@ -189,7 +195,18 @@ class CompanyController extends Controller
 
     public function getAllCompanies()
     {
-        $companies = Company::select('id', 'name')->get();
+        $user = Auth::user(); // Assuming you are using Laravel's built-in authentication
+        
+        // Check if the user is a Super Admin (SA)
+        if ($user->type === 'SA') {
+            $companies = Company::select('id', 'name')->get();
+        }
+        // Check if the user is a Company Admin (CA)
+        elseif ($user->type === 'CA') {
+            $companies = Company::select('id', 'name')->where('id', $user->company_id)->get();
+        }
+        // Handle other user types if necessary
+        
         return response()->json($companies);
     }
 }

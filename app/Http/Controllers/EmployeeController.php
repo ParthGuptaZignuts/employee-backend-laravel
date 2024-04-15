@@ -38,6 +38,16 @@ class EmployeeController extends Controller
 
     public function index()
     {
+        // $user = auth()->user();
+        // $query = User::with('company:id,name')->whereIn('type', ['CA', 'E']);
+        // if ($user->type === 'CA') {
+        //     $query->where('company_id', $user->company_id);
+        // } elseif ($user->type !== 'SA') {
+        //     return error('Unauthorized', [], 'forbidden');
+        // }
+        // $employees = $query->paginate(10);
+        // return ok('Employees retrieved successfully', $employees);
+
         if (auth()->user()->type === 'SA') {
             $employees = User::with('company:id,name')->whereIn('type', ['CA', 'E'])->get();
             return ok('Employees retrieved successfully', $employees);
