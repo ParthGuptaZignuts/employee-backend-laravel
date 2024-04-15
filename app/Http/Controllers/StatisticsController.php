@@ -9,18 +9,33 @@ use App\Models\JobDescription;
 
 class StatisticsController extends Controller
 {
-    public function getStatistics()
+    public function getStatistics(Request $request)
     {
-        $totalCompanies = Company::count();
-        $totalCompanyAdmin = User::whereIn('type', ['CA'])->count();
-        $totalEmployees = User::whereIn('type', ['E'])->count();
-        $totalJobs = JobDescription::count();
+        if ($request->user()->type === 'SA') {
+            $totalCompanies = Company::count();
+            $totalCompanyAdmin = User::whereIn('type', ['CA'])->count();
+            $totalEmployees = User::whereIn('type', ['E'])->count();
+            $totalJobs = JobDescription::count();
 
-        return response()->json([
-            'total_companies' => $totalCompanies,
-            'total_employees' => $totalEmployees,
-            'total_ca' => $totalCompanyAdmin,
-            'total_jobs' => $totalJobs,
-        ]);
+            return response()->json([
+                'total_companies' => $totalCompanies,
+                'total_employees' => $totalEmployees,
+                'total_ca' => $totalCompanyAdmin,
+                'total_jobs' => $totalJobs,
+            ]);
+        } elseif ($request->user()->type === 'CA') { 
+            $companyId = $request->user()->company_id;
+            $totalEmployees = User::where('type', 'E')->where('company_id', $companyId)->count();
+            $totalJobs = JobDescription::whereHas('company', function ($query) use ($companyId) {
+                $query->where('id', $companyId);
+            })->count();
+
+            return response()->json([
+                'total_employees' => $totalEmployees,
+                'total_jobs' => $totalJobs,
+            ]);
+        } else {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
     }
 }
