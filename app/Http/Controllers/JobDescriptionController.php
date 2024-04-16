@@ -11,16 +11,26 @@ class JobDescriptionController extends Controller
     public function index(Request $request)
     {
         $jobDescriptions = JobDescription::query();
-    
-        // If the user is a super admin, retrieve all job descriptions with company names
+        
+        // If the user is a super admin
         if ($request->user()->type === 'SA') {
+            // Check if search query is provided
+            if ($request->has('search') && strlen($request->input('search')) >= 3) {
+                $searchQuery = $request->input('search');
+                $jobDescriptions = $jobDescriptions->where('title', 'like', "%$searchQuery%");
+            }
             $jobDescriptions = $jobDescriptions->with('company')->get();
         } else {
-            // If the user is not a super admin, filter job descriptions by company_id and retrieve company names
-            $jobDescriptions = $jobDescriptions->where('company_id', $request->user()->company_id)
-                ->with('company')->get();
+            // If the user is not a super admin (company admin)
+            $jobDescriptions = $jobDescriptions->where('company_id', $request->user()->company_id);
+            // Check if search query is provided
+            if ($request->has('search') && strlen($request->input('search')) >= 3) {
+                $searchQuery = $request->input('search');
+                $jobDescriptions = $jobDescriptions->where('title', 'like', "%$searchQuery%");
+            }
+            $jobDescriptions = $jobDescriptions->with('company')->get();
         }
-    
+        
         return response()->json($jobDescriptions);
     }
 
