@@ -42,9 +42,9 @@ class JobDescriptionController extends Controller
             $rules['company_id'] = 'required|exists:companies,id';
         }
 
-        if (!$request->has('skills_required') ||  $request->skills_required === null) {
-            $request->merge(['skills_required' => 'No Specific Skills Required']);
-        }
+        // if (!$request->has('skills_required') ||  $request->skills_required === null) {
+        //     $request->merge(['skills_required' => 'No Specific Skills Required']);
+        // }
 
         // Validate the request
         $validator = $this->validate($request, $rules);
@@ -90,9 +90,9 @@ class JobDescriptionController extends Controller
             $rules['company_id'] = 'exists:companies,id';
         }
 
-        if (!$request->has('skills_required') ||  $request->skills_required === null ) {
-            $request->merge(['skills_required' => 'No Specific Skills Required']);
-        }
+        // if (!$request->has('skills_required') ||  $request->skills_required === null ) {
+        //     $request->merge(['skills_required' => 'No Specific Skills Required']);
+        // }
 
         // Validate the request
         $validator = $this->validate($request, $rules);
