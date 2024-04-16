@@ -37,31 +37,35 @@ class EmployeeController extends Controller
         return $nextEmployeeNumber;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        // $user = auth()->user();
-        // $query = User::with('company:id,name')->whereIn('type', ['CA', 'E']);
-        // if ($user->type === 'CA') {
-        //     $query->where('company_id', $user->company_id);
-        // } elseif ($user->type !== 'SA') {
-        //     return error('Unauthorized', [], 'forbidden');
-        // }
-        // $employees = $query->paginate(10);
-        // return ok('Employees retrieved successfully', $employees);
-
-        if (auth()->user()->type === 'SA') {
-            $employees = User::with('company:id,name')->whereIn('type', ['CA', 'E'])->get();
+        $user = auth()->user();
+    
+        if ($user->type === 'SA' || $user->type === 'CA') {
+            $searchQuery = $request->input('search');
+    
+            $query = User::with('company:id,name')->whereIn('type', ['CA', 'E']);
+    
+            // If the user is a company admin, filter employees by company ID
+            if ($user->type === 'CA') {
+                $query->where('company_id', $user->company_id);
+            }
+    
+            if ($searchQuery && strlen($searchQuery) >= 3) {
+                $employees = $query->where(function ($query) use ($searchQuery) {
+                    $query->where('first_name', 'like', '%' . $searchQuery . '%')
+                        ->orWhere('last_name', 'like', '%' . $searchQuery . '%');
+                })->get();
+            } else {
+                $employees = $query->get();
+            }
+    
             return ok('Employees retrieved successfully', $employees);
-        } elseif (auth()->user()->type === 'CA') {
-            $employees = User::with('company:id,name')
-                ->where('company_id', auth()->user()->company_id)
-                ->whereIn('type', ['CA', 'E'])
-                ->get();
-            return ok('Employees retrieved successfully', $employees);
-        } else {
-            return error('Unauthorized', [], 'forbidden');
         }
+    
+        return error('Unauthorized', [], 'forbidden');
     }
+
 
     public function store(Request $request)
     {
