@@ -42,17 +42,23 @@ class CompanyController extends Controller
 
     public function index(Request $request)
     {
-        // $perPage = request()->query('perPage', 1);
-        // $companies = Company::paginate($perPage);
-        // $companies = Company::paginate(1);
-
         $searchQuery = $request->input('search');
+        $status = $request->input('status');
         
+        $query = Company::query();
+
+        // Apply search filter if provided
         if ($searchQuery && strlen($searchQuery) >= 3) {
-            $companies = Company::where('name', 'like', '%' . $searchQuery . '%')->get();
-        } else {
-            $companies = Company::all();
+            $query->where('name', 'like', '%' . $searchQuery . '%');
         }
+
+        // Apply status filter if provided
+        if ($status && in_array($status, ['A', 'I'])) {
+            $query->where('status', $status);
+        }
+
+        // Get the result
+        $companies = $query->get();
 
         return ok('Companies retrieved successfully', $companies);
     }

@@ -9,30 +9,39 @@ class JobDescriptionController extends Controller
 {
 
     public function index(Request $request)
-    {
-        $jobDescriptions = JobDescription::query();
-        
-        // If the user is a super admin
-        if ($request->user()->type === 'SA') {
-            // Check if search query is provided
-            if ($request->has('search') && strlen($request->input('search')) >= 3) {
-                $searchQuery = $request->input('search');
-                $jobDescriptions = $jobDescriptions->where('title', 'like', "%$searchQuery%");
-            }
-            $jobDescriptions = $jobDescriptions->with('company')->get();
-        } else {
-            // If the user is not a super admin (company admin)
-            $jobDescriptions = $jobDescriptions->where('company_id', $request->user()->company_id);
-            // Check if search query is provided
-            if ($request->has('search') && strlen($request->input('search')) >= 3) {
-                $searchQuery = $request->input('search');
-                $jobDescriptions = $jobDescriptions->where('title', 'like', "%$searchQuery%");
-            }
-            $jobDescriptions = $jobDescriptions->with('company')->get();
+{
+    $jobDescriptions = JobDescription::query();
+
+    if ($request->user()->type === 'SA') {
+        if ($request->has('search') && strlen($request->input('search')) >= 3) {
+            $searchQuery = $request->input('search');
+            $jobDescriptions = $jobDescriptions->where('title', 'like', "%$searchQuery%");
         }
-        
-        return response()->json($jobDescriptions);
+
+        if ($request->has('employment_type')) {
+            $employmentType = $request->input('employment_type');
+            $jobDescriptions = $jobDescriptions->where('employment_type', $employmentType);
+        }
+
+        $jobDescriptions = $jobDescriptions->with('company')->get();
+    } else {
+        $jobDescriptions = $jobDescriptions->where('company_id', $request->user()->company_id);
+
+        if ($request->has('search') && strlen($request->input('search')) >= 3) {
+            $searchQuery = $request->input('search');
+            $jobDescriptions = $jobDescriptions->where('title', 'like', "%$searchQuery%");
+        }
+
+        if ($request->has('employment_type')) {
+            $employmentType = $request->input('employment_type');
+            $jobDescriptions = $jobDescriptions->where('employment_type', $employmentType);
+        }
+
+        $jobDescriptions = $jobDescriptions->with('company')->get();
     }
+
+    return response()->json($jobDescriptions);
+}
 
     public function store(Request $request)
     {
@@ -43,7 +52,7 @@ class JobDescriptionController extends Controller
             'employment_type' => 'required|string',
             'experience_required' => 'nullable|string',
             'skills_required' => 'nullable|string',
-            'posted_date' => 'nullable|date', 
+            'posted_date' => 'nullable|date',
             'expiry_date' => 'nullable|date',
         ];
 
@@ -73,7 +82,7 @@ class JobDescriptionController extends Controller
     public function show(string $id)
     {
         $jobDescription = JobDescription::find($id);
-       
+
         if (!$jobDescription) {
             return response()->json(['error' => 'Job not found'], 404);
         }
@@ -125,7 +134,7 @@ class JobDescriptionController extends Controller
         return response()->json(['message' => 'Job updated successfully', 'job' => $jobDescription], 200);
     }
 
- 
+
     public function destroy(Request $request, string $id)
     {
         // Find job description
@@ -149,5 +158,4 @@ class JobDescriptionController extends Controller
             return response()->json(['message' => 'Job deleted successfully'], 200);
         }
     }
-
 }
