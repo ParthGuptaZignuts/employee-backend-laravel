@@ -40,13 +40,20 @@ class CompanyController extends Controller
     }
 
 
-    public function index()
+    public function index(Request $request)
     {
         // $perPage = request()->query('perPage', 1);
         // $companies = Company::paginate($perPage);
         // $companies = Company::paginate(1);
 
-        $companies = Company::all();  
+        $searchQuery = $request->input('search');
+        
+        if ($searchQuery && strlen($searchQuery) >= 3) {
+            $companies = Company::where('name', 'like', '%' . $searchQuery . '%')->get();
+        } else {
+            $companies = Company::all();
+        }
+
         return ok('Companies retrieved successfully', $companies);
     }
 
@@ -196,7 +203,7 @@ class CompanyController extends Controller
     public function getAllCompanies()
     {
         $user = Auth::user(); // Assuming you are using Laravel's built-in authentication
-        
+
         // Check if the user is a Super Admin (SA)
         if ($user->type === 'SA') {
             $companies = Company::select('id', 'name')->get();
@@ -206,7 +213,7 @@ class CompanyController extends Controller
             $companies = Company::select('id', 'name')->where('id', $user->company_id)->get();
         }
         // Handle other user types if necessary
-        
+
         return response()->json($companies);
     }
 }
