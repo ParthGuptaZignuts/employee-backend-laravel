@@ -11,14 +11,12 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use App\Mail\InvitationMail;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Pagination\Paginator;
-
 
 require_once app_path('Http/Helpers/APIResponse.php');
 
 class CompanyController extends Controller
 {
-
+    // generates the employeement number for Company Admin
     public function generateEmployeeNumber(): string
     {
         $latestEmployeeNumberPref = Preference::where('code', 'EMP')->first();
@@ -44,15 +42,15 @@ class CompanyController extends Controller
     {
         $searchQuery = $request->input('search');
         $status = $request->input('status');
-        
+
         $query = Company::query();
 
-        // Apply search filter if provided
+        // search filter provided
         if ($searchQuery && strlen($searchQuery) >= 3) {
             $query->where('name', 'like', '%' . $searchQuery . '%');
         }
 
-        // Apply status filter if provided
+        // status filter provided
         if ($status && in_array($status, ['A', 'I'])) {
             $query->where('status', $status);
         }
@@ -63,11 +61,9 @@ class CompanyController extends Controller
         return ok('Companies retrieved successfully', $companies);
     }
 
-
-
-
     public function store(Request $request)
     {
+        // validate the request parameters for company and company admin 
         $request->validate([
             'name' => 'required|string|max:64',
             'email' => 'required|email|max:128',
@@ -83,17 +79,19 @@ class CompanyController extends Controller
             'admin.dob' => 'required|date',
         ]);
 
-
+        // creating new company 
         $company = new Company();
         $company->fill($request->except('logo'));
         $company->save();
 
+        // storing company logo if there is one
         if ($request->hasFile('logo')) {
             $logoPath = $request->file('logo')->store('public/logos');
             $company->logo = basename($logoPath);
             $company->save();
         }
 
+        // creating company admin
         $admin = new User();
         $admin->fill($request->input('admin'));
         $admin->type = "CA";
@@ -101,12 +99,15 @@ class CompanyController extends Controller
         $admin->company_id = $company->id;
         $admin->save();
 
+        // generating employee number for company admin
         $admin->employee_number = $this->generateEmployeeNumber();
         $admin->save();
 
+        // generating token and reset password link
         $token = Password::createToken($admin);
         $resetLink = url('http://localhost:5173/resetPassword/' . $token);
 
+        // sending invitation email to company admin
         Mail::to($admin->email)->send(new InvitationMail(
             $admin->first_name,
             $admin->last_name,
@@ -122,6 +123,7 @@ class CompanyController extends Controller
 
     public function update(Request $request, string $id)
     {
+        // validate the request parameters for company and company admin
         $validator = $request->validate([
             'name' => 'required|string|max:64',
             'email' => 'required|email|max:128' . $id,
@@ -140,6 +142,7 @@ class CompanyController extends Controller
         $company = Company::findOrFail($id);
         $company->fill($validator);
 
+        // storing company logo if there is one for updating
         if ($request->hasFile('logo')) {
             $logoPath = $request->file('logo')->store('public/logos');
             $company->logo = basename($logoPath);
@@ -147,6 +150,7 @@ class CompanyController extends Controller
 
         $company->save();
 
+        // updating company admin
         if ($request->has('admin')) {
             $adminData = $validator['admin'];
             $admin = $company->admin;
@@ -168,6 +172,7 @@ class CompanyController extends Controller
 
     public function show($companyId)
     {
+        // get company information with admin
         $company = Company::with('admin')->find($companyId);
 
         if (!$company) {
@@ -180,8 +185,10 @@ class CompanyController extends Controller
     // with job description deleted successfully
     public function destroy(string $id, Request $request)
     {
+        // Find company by ID
         $company = Company::withTrashed()->findOrFail($id);
 
+        // Delete company admin
         $admin = $company->admin;
         if ($admin) {
             if ($request->has('force_delete') && $request->force_delete) {
@@ -190,7 +197,7 @@ class CompanyController extends Controller
                 $admin->delete();
             }
         }
-
+        // Delete employees and job descriptions 
         if ($request->has('force_delete') && $request->force_delete) {
             $company->employees()->forceDelete();
             $company->jobDescriptions()->forceDelete();
@@ -208,7 +215,7 @@ class CompanyController extends Controller
 
     public function getAllCompanies()
     {
-        $user = Auth::user(); // Assuming you are using Laravel's built-in authentication
+        $user = Auth::user();
 
         // Check if the user is a Super Admin (SA)
         if ($user->type === 'SA') {
@@ -219,7 +226,6 @@ class CompanyController extends Controller
             $companies = Company::select('id', 'name')->where('id', $user->company_id)->get();
         }
         // Handle other user types if necessary
-
         return response()->json($companies);
     }
 }

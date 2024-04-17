@@ -24,11 +24,12 @@ Route::post('/password/reset', [AuthenticationController::class, 'resetPassword'
 
 // user registration protected routes
 Route::middleware('auth:sanctum')->group(function () {
+    // routes for logout , get SA and CA statistics and get user
     Route::post('/logout', [AuthenticationController::class, 'logout']);
     Route::get('/user', [AuthenticationController::class, 'getUser']);
     Route::get('/statistics', [StatisticsController::class, 'getStatistics']);
 
-    // company routes
+    // company routes for CRUD operations
     Route::middleware([UserType::class . ':SA'])->group(function(){
         Route::post('/companies/create',[CompanyController::class, 'store']);
         Route::post('/companies/{id}',[CompanyController::class, 'update']);
@@ -37,7 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/companies/{id}',[CompanyController::class, 'show']);
     });
 
-    // job description
+    // job description for CRUD operations
     Route::middleware([UserType::class . ':SA,CA'])->group(function(){
         Route::post('job/create',[JobDescriptionController::class, 'store']);
         Route::get('jobs',[JobDescriptionController::class, 'index']);
@@ -46,7 +47,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('job/delete/{id}',[JobDescriptionController::class, 'destroy']);
     });
 
-    // employee description
+    // employee description for CRUD operations
     Route::middleware([UserType::class . ':SA,CA'])->group(function(){
         Route::post('employee/create',[EmployeeController::class, 'store']);
         Route::get('employees',[EmployeeController::class, 'index']);

@@ -7,42 +7,49 @@ use App\Models\JobDescription;
 
 class JobDescriptionController extends Controller
 {
-
+    // Method to retrieve job descriptions based on user's role and filters
     public function index(Request $request)
-{
-    $jobDescriptions = JobDescription::query();
+    {
+        $jobDescriptions = JobDescription::query();
 
-    if ($request->user()->type === 'SA') {
-        if ($request->has('search') && strlen($request->input('search')) >= 3) {
-            $searchQuery = $request->input('search');
-            $jobDescriptions = $jobDescriptions->where('title', 'like', "%$searchQuery%");
+        // if user is Super Admin
+        if ($request->user()->type === 'SA') {
+            // checking if request has search and more than 3 letter to search 
+            if ($request->has('search') && strlen($request->input('search')) >= 3) {
+                $searchQuery = $request->input('search');
+                $jobDescriptions = $jobDescriptions->where('title', 'like', "%$searchQuery%");
+            }
+
+            // filter on bases of employement type for super admin
+            if ($request->has('employment_type')) {
+                $employmentType = $request->input('employment_type');
+                $jobDescriptions = $jobDescriptions->where('employment_type', $employmentType);
+            }
+
+            $jobDescriptions = $jobDescriptions->with('company')->get();
+        } else {
+            // this is for Company Admin
+            $jobDescriptions = $jobDescriptions->where('company_id', $request->user()->company_id);
+
+            // checking if request has search and more than 3 letter to search 
+            if ($request->has('search') && strlen($request->input('search')) >= 3) {
+                $searchQuery = $request->input('search');
+                $jobDescriptions = $jobDescriptions->where('title', 'like', "%$searchQuery%");
+            }
+
+            // filter on bases of employement type for company admin
+            if ($request->has('employment_type')) {
+                $employmentType = $request->input('employment_type');
+                $jobDescriptions = $jobDescriptions->where('employment_type', $employmentType);
+            }
+
+            $jobDescriptions = $jobDescriptions->with('company')->get();
         }
 
-        if ($request->has('employment_type')) {
-            $employmentType = $request->input('employment_type');
-            $jobDescriptions = $jobDescriptions->where('employment_type', $employmentType);
-        }
-
-        $jobDescriptions = $jobDescriptions->with('company')->get();
-    } else {
-        $jobDescriptions = $jobDescriptions->where('company_id', $request->user()->company_id);
-
-        if ($request->has('search') && strlen($request->input('search')) >= 3) {
-            $searchQuery = $request->input('search');
-            $jobDescriptions = $jobDescriptions->where('title', 'like', "%$searchQuery%");
-        }
-
-        if ($request->has('employment_type')) {
-            $employmentType = $request->input('employment_type');
-            $jobDescriptions = $jobDescriptions->where('employment_type', $employmentType);
-        }
-
-        $jobDescriptions = $jobDescriptions->with('company')->get();
+        return response()->json($jobDescriptions);
     }
 
-    return response()->json($jobDescriptions);
-}
-
+    // Method to store a new job description
     public function store(Request $request)
     {
         // Validation rules
@@ -61,10 +68,6 @@ class JobDescriptionController extends Controller
             $rules['company_id'] = 'required|exists:companies,id';
         }
 
-        // if (!$request->has('skills_required') ||  $request->skills_required === null) {
-        //     $request->merge(['skills_required' => 'No Specific Skills Required']);
-        // }
-
         // Validate the request
         $validator = $this->validate($request, $rules);
 
@@ -78,11 +81,13 @@ class JobDescriptionController extends Controller
     }
 
 
-
+    // Method to retrieve details of a specific job description
     public function show(string $id)
     {
+        // get job by id
         $jobDescription = JobDescription::find($id);
 
+        // return if job does not exist
         if (!$jobDescription) {
             return response()->json(['error' => 'Job not found'], 404);
         }
@@ -90,7 +95,7 @@ class JobDescriptionController extends Controller
         return response()->json($jobDescription);
     }
 
-
+    // Method to update an existing job description
     public function update(Request $request, string $id)
     {
         // Validation rules
@@ -108,10 +113,6 @@ class JobDescriptionController extends Controller
         if ($request->user()->type !== 'SA') {
             $rules['company_id'] = 'exists:companies,id';
         }
-
-        // if (!$request->has('skills_required') ||  $request->skills_required === null ) {
-        //     $request->merge(['skills_required' => 'No Specific Skills Required']);
-        // }
 
         // Validate the request
         $validator = $this->validate($request, $rules);
@@ -134,7 +135,7 @@ class JobDescriptionController extends Controller
         return response()->json(['message' => 'Job updated successfully', 'job' => $jobDescription], 200);
     }
 
-
+    // Method to delete a job description
     public function destroy(Request $request, string $id)
     {
         // Find job description

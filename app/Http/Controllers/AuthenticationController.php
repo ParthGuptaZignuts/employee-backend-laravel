@@ -11,11 +11,11 @@ use Illuminate\Auth\Events\PasswordReset;
 
 require_once app_path('Http/Helpers/APIResponse.php');
 
-
 class AuthenticationController extends Controller
 {
     public function createUser(Request $request)
     {
+        // checking validation
         $validator = $this->validate($request, [
             'first_name' => 'required|string',
             'last_name' => 'required|string',
@@ -23,6 +23,7 @@ class AuthenticationController extends Controller
             'password' => 'required|string',
         ]);
 
+        // creating user
         $user = User::create([
             'first_name' => $validator["first_name"],
             'last_name' => $validator["last_name"],
@@ -35,6 +36,7 @@ class AuthenticationController extends Controller
 
     public function loginUser(Request $request)
     {
+        // checking required parameters
         $this->validate($request, [
             'email'    => 'required|email|exists:users',
             'password' => 'required|string',
@@ -55,25 +57,28 @@ class AuthenticationController extends Controller
 
     public function getUser(Request $request)
     {
+        // fetching the user
         $user = $request->user();
-
         return ok('User details retrieved successfully', $user);
     }
 
     public function logout(Request $request)
     {
+        // deleting the user with token 
         $request->user()->tokens()->delete();
         return ok('User logged out successfully');
     }
 
     public function resetPassword(Request $request)
     {
+        // checking validation 
         $request->validate([
             'email' => 'required|email',
             'token' => 'required|string',
             'password' => 'required|string|confirmed',
         ]);
 
+        // resetting the password
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user, $password) {
