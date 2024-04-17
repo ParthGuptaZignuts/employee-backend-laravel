@@ -37,35 +37,68 @@ class EmployeeController extends Controller
         return $nextEmployeeNumber;
     }
 
+    // public function index(Request $request)
+    // {
+    //     $user = auth()->user();
+
+    //     if ($user->type === 'SA' || $user->type === 'CA') {
+    //         $searchQuery = $request->input('search');
+
+    //         $query = User::with('company:id,name')->whereIn('type', ['CA', 'E']);
+
+    //         if ($user->type === 'CA') {
+    //             $query->where('company_id', $user->company_id);
+    //         }
+
+    //         if ($searchQuery && strlen($searchQuery) >= 3) {
+    //             $employees = $query->where(function ($query) use ($searchQuery) {
+    //                 $query->where('first_name', 'like', '%' . $searchQuery . '%')
+    //                     ->orWhere('last_name', 'like', '%' . $searchQuery . '%');
+    //             })->get();
+    //         } else {
+    //             $employees = $query->get();
+    //         }
+
+
+
+    //         return ok('Employees retrieved successfully', $employees);
+    //     }
+
+    //     return error('Unauthorized', [], 'forbidden');
+    // }
+
     public function index(Request $request)
     {
         $user = auth()->user();
-    
+
         if ($user->type === 'SA' || $user->type === 'CA') {
             $searchQuery = $request->input('search');
-    
+            $companyIdFilter = $request->input('search_filter');
+
             $query = User::with('company:id,name')->whereIn('type', ['CA', 'E']);
-    
-            // If the user is a company admin, filter employees by company ID
+
             if ($user->type === 'CA') {
                 $query->where('company_id', $user->company_id);
             }
-    
+
             if ($searchQuery && strlen($searchQuery) >= 3) {
-                $employees = $query->where(function ($query) use ($searchQuery) {
+                $query->where(function ($query) use ($searchQuery) {
                     $query->where('first_name', 'like', '%' . $searchQuery . '%')
                         ->orWhere('last_name', 'like', '%' . $searchQuery . '%');
-                })->get();
-            } else {
-                $employees = $query->get();
+                });
             }
-    
+
+            if ($companyIdFilter) {
+                $query->where('company_id', $companyIdFilter);
+            }
+
+            $employees = $query->get();
+
             return ok('Employees retrieved successfully', $employees);
         }
-    
+
         return error('Unauthorized', [], 'forbidden');
     }
-
 
     public function store(Request $request)
     {
