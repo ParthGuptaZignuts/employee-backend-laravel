@@ -27,7 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // routes for logout , get SA and CA statistics and get user
     Route::post('/logout', [AuthenticationController::class, 'logout']);
     Route::get('/user', [AuthenticationController::class, 'getUser']);
-    Route::get('/statistics', [StatisticsController::class, 'getStatistics']);
+    Route::get('/statistics', [AuthenticationController::class, 'getStatistics']);
 
     // company routes for CRUD operations
     Route::middleware([UserType::class . ':SA'])->group(function(){
@@ -38,7 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/companies/{id}',[CompanyController::class, 'show']);
     });
 
-    // job description for CRUD operations
+    // job routes for CRUD operations
     Route::middleware([UserType::class . ':SA,CA'])->group(function(){
         Route::post('job/create',[JobDescriptionController::class, 'store']);
         Route::get('jobs',[JobDescriptionController::class, 'index']);
@@ -47,7 +47,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('job/delete/{id}',[JobDescriptionController::class, 'destroy']);
     });
 
-    // employee description for CRUD operations
+    // employee routes for CRUD operations
     Route::middleware([UserType::class . ':SA,CA'])->group(function(){
         Route::post('employee/create',[EmployeeController::class, 'store']);
         Route::get('employees',[EmployeeController::class, 'index']);
