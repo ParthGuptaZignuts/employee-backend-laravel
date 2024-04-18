@@ -27,7 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // routes for logout , get SA and CA statistics and get user
     Route::post('/logout', [AuthenticationController::class, 'logout']);
     Route::get('/user', [AuthenticationController::class, 'getUser']);
-    Route::get('/statistics', [AuthenticationController::class, 'getStatistics']);
+    Route::get('/statistics', [StatisticsController::class, 'getStatistics']);
 
     // company routes for CRUD operations
     Route::middleware([UserType::class . ':SA'])->group(function(){
