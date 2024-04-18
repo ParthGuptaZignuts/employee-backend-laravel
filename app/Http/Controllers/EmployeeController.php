@@ -202,25 +202,34 @@ class EmployeeController extends Controller
 
     // Method to delete an employee
     public function destroy(string $id, Request $request)
-    {
-        $user = User::find($id);
+{
+    $user = User::find($id);
 
-        if (!$user) {
-            return error('User not found', [], 'notfound');
+    if (!$user) {
+        return error('User not found', [], 'notfound');
+    }
+
+    // Check user's role for authorization to delete employee
+    if (auth()->user()->type === 'SA') {
+        // Super admin can delete any user except other super admins and company admins
+        if ($user->type === 'SA' || $user->type === 'CA') {
+            return error('Super admin cannot delete another super admin or company admin', [], 'forbidden');
         }
-
-        // Check user's role for authorization to delete employee
-        if (auth()->user()->type === 'SA' || (auth()->user()->type === 'CA' && auth()->user()->company_id === $user->company_id)) {
-            // Check if permanent delete or soft delete
-            if ($request->has('permanent_delete') && $request->boolean('permanent_delete')) {
-                $user->forceDelete();
-                return ok('User permanently deleted successfully');
-            } else {
-                $user->delete();
-                return ok('User soft deleted successfully');
-            }
-        } else {
-            return error('Unauthorized', [], 'forbidden');
+    } elseif (auth()->user()->type === 'CA') {
+        // Company admin cannot delete themselves or other company admins
+        if ($user->type === 'CA') {
+            return error('Company admin cannot be deleted or soft deleted', [], 'forbidden');
         }
     }
+
+    // Proceed with deletion
+    if ($request->has('permanent_delete') && $request->boolean('permanent_delete')) {
+        $user->forceDelete();
+        return ok('User permanently deleted successfully');
+    } else {
+        $user->delete();
+        return ok('User soft deleted successfully');
+    }
+}
+
 }
