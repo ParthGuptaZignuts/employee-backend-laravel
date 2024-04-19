@@ -22,7 +22,7 @@ class AuthenticationController extends Controller
             'first_name' => 'required|string',
             'last_name' => 'required|string',
             'email' => 'required|email|unique:users',
-            'password' => 'required|string',
+            'password' => 'required|string|confirmed',
         ]);
 
         // creating user
@@ -66,9 +66,15 @@ class AuthenticationController extends Controller
 
     public function logout(Request $request)
     {
-        // deleting the user with token 
-        $request->user()->tokens()->delete();
-        return ok('User logged out successfully');
+        // Check if the user is authenticated
+        if ($request->user()) {
+            // Deleting the user's tokens
+            $request->user()->tokens()->delete();
+            return ok('User logged out successfully');
+        } else {
+            // If user is not authenticated, return an error
+            return error('User not authenticated', [], 'unauthenticated');
+        }
     }
 
     public function resetPassword(Request $request)

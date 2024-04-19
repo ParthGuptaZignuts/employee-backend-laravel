@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Middleware\UserType;
 
 
 /*
@@ -19,7 +18,6 @@ use App\Http\Middleware\UserType;
 */
 
 // user registration public routes
-
 Route::post('/register', [AuthenticationController::class, 'createUser']);
 Route::post('/login', [AuthenticationController::class, 'loginUser']);
 Route::post('/password/reset', [AuthenticationController::class, 'resetPassword']);
@@ -31,8 +29,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthenticationController::class, 'getUser']);
     Route::get('/statistics', [StatisticsController::class, 'getStatistics']);
 
-    // company routes for CRUD operations
-    Route::middleware([UserType::class . ':SA'])->prefix('/companies')->group(function () {
+    Route::middleware('checkUserType:SA')->prefix('/companies')->group(function () {
         Route::post('/create', [CompanyController::class, 'store']);
         Route::post('/{id}', [CompanyController::class, 'update']);
         Route::post('/delete/{id}', [CompanyController::class, 'destroy']);
@@ -41,7 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // job routes for CRUD operations
-    Route::middleware([UserType::class . ':SA,CA'])->group(function () {
+    Route::middleware('checkUserType:SA,CA')->group(function () {
         Route::get('jobs', [JobDescriptionController::class, 'index']);
         Route::prefix('job')->group(function () {
             Route::post('/create', [JobDescriptionController::class, 'store']);
@@ -52,7 +49,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // employee routes for CRUD operations
-    Route::middleware([UserType::class . ':SA,CA'])->group(function () {
+    Route::middleware('checkUserType:SA,CA')->group(function () {
         Route::get('employees', [EmployeeController::class, 'index']);
         Route::get('getallcompanies', [CompanyController::class, 'getAllCompanies']);
         Route::prefix('employee')->group(function () {
