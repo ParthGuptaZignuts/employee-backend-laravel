@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('/register', [AuthenticationController::class, 'createUser']);
 Route::post('/login', [AuthenticationController::class, 'loginUser']);
 Route::post('/password/reset', [AuthenticationController::class, 'resetPassword']);
+Route::get('/companyinfo',[CompanyController::class, 'companyWithLogo']);
 
 // user registration protected routes
 Route::middleware('auth:sanctum')->group(function () {

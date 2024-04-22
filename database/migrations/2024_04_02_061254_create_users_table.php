@@ -18,6 +18,7 @@ class CreateUsersTable extends Migration
             $table->string('last_name', 64)->nullable();
             $table->string('email', 128)->unique();
             $table->string('password', 64);
+            $table->string('phone', 64)->nullable();
             $table->enum('type', ['SA', 'CA', 'E', 'C'])->default('C')->comment('Super Admin, Company Admin, Employee, Candidate');
             $table->text('address', 256)->nullable();
             $table->string('city', 32)->nullable();

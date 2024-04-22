@@ -228,4 +228,14 @@ class CompanyController extends Controller
         // Handle other user types if necessary
         return response()->json($companies);
     }
+    public function companyWithLogo()
+    {
+
+        $companies = Company::select('name', 'logo')->limit(4)->get();
+        return ok(
+            'Companies with logos retrieved successfully',
+            $companies,
+            200
+        );
+    }
 }

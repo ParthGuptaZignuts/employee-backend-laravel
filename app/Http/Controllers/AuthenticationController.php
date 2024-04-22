@@ -22,6 +22,9 @@ class AuthenticationController extends Controller
             'first_name' => 'required|string',
             'last_name' => 'required|string',
             'email' => 'required|email|unique:users',
+            'phone' =>'required|string',
+            'dob' =>'required|date',
+            'city' =>'required|string',
             'password' => 'required|string|confirmed',
         ]);
 
@@ -30,6 +33,9 @@ class AuthenticationController extends Controller
             'first_name' => $validator["first_name"],
             'last_name' => $validator["last_name"],
             'email' => $validator["email"],
+            'phone' => $validator["phone"],
+            'dob' => $validator["dob"],
+            'city' => $validator["city"],
             'password' => Hash::make($validator["password"]),
         ]);
 
