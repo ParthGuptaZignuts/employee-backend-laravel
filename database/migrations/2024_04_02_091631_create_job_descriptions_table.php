@@ -20,9 +20,9 @@ class CreateJobDescriptionsTable extends Migration
             $table->date('expiry_date')->nullable();
             $table->softDeletes();
             $table->timestamps();
-            $table->id('created_by')->nullable();
-            $table->id('updated_by')->nullable();
-            $table->id('deleted_by')->nullable();
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->unsignedBigInteger('updated_by')->nullable();
+            $table->unsignedBigInteger('deleted_by')->nullable();
         });
     }
 
