@@ -23,6 +23,15 @@ class JobApplicationController extends Controller
         $user = User::where('email', $validatedData['email'])->firstOrFail();
         $jobDescription = JobDescription::findOrFail($validatedData['job_descriptions_id']);
         $companyId = $jobDescription->company_id;
+
+        $existingApplication = JobApplication::where('user_id', $user->id)
+        ->where('job_descriptions_id', $validatedData['job_descriptions_id'])
+        ->first();
+
+        if ($existingApplication) {
+            // Return response indicating that the user has already applied for this job
+            return response()->json(['message' => 'You have already applied for this post and your request is pending.'], 400);
+        }
         
         // Store the uploaded file and get the file path
         $resumePath = $request->file('resume')->store('resumes', 'public'); // Save to storage/app/public/resumes
