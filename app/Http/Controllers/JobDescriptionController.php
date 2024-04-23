@@ -159,4 +159,9 @@ class JobDescriptionController extends Controller
             return response()->json(['message' => 'Job deleted successfully'], 200);
         }
     }
+
+    public function AllJobsInfo(){
+        $jobDescriptions = JobDescription::with(['company:id,name,logo,email,address'])->get();
+        return response()->json($jobDescriptions);
+    }
 }
