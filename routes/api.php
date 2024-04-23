@@ -24,6 +24,7 @@ Route::post('/password/reset', [AuthenticationController::class, 'resetPassword'
 Route::get('/companyinfo',[CompanyController::class, 'companyWithLogo']);
 Route::get("/jobsInfo",[JobDescriptionController::class, "AllJobsInfo"]);
 
+
 // user registration protected routes
 Route::middleware('auth:sanctum')->group(function () {
     // routes for logout , get SA and CA statistics and get user
@@ -61,4 +62,6 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/{id}', [EmployeeController::class, 'destroy']);
         });
     });
+
+    Route::post("/userJobDetails" ,[JobApplicationController::class, 'store']);
 });
