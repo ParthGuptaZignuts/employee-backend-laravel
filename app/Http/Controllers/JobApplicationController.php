@@ -161,7 +161,7 @@ class JobApplicationController extends Controller
 
         if ($user->type === 'SA') {
             // Super Admin can choose soft or hard delete
-            if ($request->query('hard') === 'true') {
+            if ($request->query('hard') === 'true' && $request->boolean('hard')) {
                 $application->forceDelete(); // Hard delete
                 return response()->json(['message' => 'Job application permanently deleted.'], 200);
             } else {
@@ -177,7 +177,7 @@ class JobApplicationController extends Controller
             }
 
             // Company Admin can choose soft or hard delete
-            if ($request->query('hard') === 'true') {
+            if ($request->query('hard') === 'true' && $request->boolean('hard')) {
                 $application->forceDelete(); // Hard delete
                 return response()->json(['message' => 'Job application permanently deleted.'], 200);
             } else {
