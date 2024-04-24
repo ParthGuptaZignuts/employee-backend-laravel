@@ -64,7 +64,13 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::middleware('checkUserType:SA,CA')->group(function () {
-        Route::get('allCandidateInfo', [JobApplicationController::class, 'getAllDetails']);
+        Route::prefix('allCandidateInfo')->group(function () {
+            Route::get('', [JobApplicationController::class, 'getAllDetails']);
+            Route::get('/{id}', [JobApplicationController::class, 'show']);
+            Route::post('/update/{id}', [JobApplicationController::class,'update']);
+            Route::post('/delete/{id}', [JobApplicationController::class,'delete']);
+        });
+
     });
 
     Route::post("/userJobDetails", [JobApplicationController::class, 'store']);

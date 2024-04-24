@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('job_descriptions_id')->constrained('job_descriptions');
             $table->enum('status', ['P', 'R', 'A'])->default('P');
             $table->string('resume');
+            // $table->softDeletes();
             $table->timestamps();
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();

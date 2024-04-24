@@ -49,29 +49,6 @@ class JobApplicationController extends Controller
         return response()->json($application, 201);
     }
 
-    //     public function getAllDetails()
-    //     {
-    //         $user = Auth::user();
-    //         if ($user->type === 'SA') {
-    //             $applications = JobApplication::with(['user', 'company', 'jobDescription'])->get();
-    //             $result = $applications->map(function ($application) {
-    //                 return [
-    //                     'application_id' => $application->id,
-    //                     'candidate_name' => $application->user->first_name,
-    //                     'company_name' => $application->company->name,
-    //                     'job_title' => $application->jobDescription->title,
-    //                     'resume_path' => $application->resume,
-    //                     'status' => $application->status,
-
-    //                 ];
-    //             });
-    //         }
-    //         elseif ($user->type === 'CA') {
-
-    //         }
-
-    //         return response()->json($result, 200);
-    //     }
     public function getAllDetails()
     {
         $user = Auth::user();
@@ -99,5 +76,84 @@ class JobApplicationController extends Controller
         });
 
         return response()->json($result, 200);
+    }
+
+    public function show($id)
+    {
+        $user = Auth::user(); // Get the authenticated user
+
+        // Find the job application with its relations
+        $application = JobApplication::with(['user', 'company', 'jobDescription'])->findOrFail($id);
+
+        // Determine if the authenticated user has permission to view this application
+        if ($user->type === 'SA') {
+            // Super Admin can view all applications
+        } elseif ($user->type === 'CA') {
+            // Company Admin can only view applications from their company
+            if ($application->company_id !== $user->company_id) {
+                return response()->json(['message' => 'You do not have permission to view this application.'], 403);
+            }
+        } else {
+            // Regular users can only view their own applications
+            if ($application->user_id !== $user->id) {
+                return response()->json(['message' => 'You do not have permission to view this application.'], 403);
+            }
+        }
+
+        // Return the application details in a formatted response
+        $result = [
+            'application_id' => $application->id,
+            'candidate_name' => $application->user->first_name . ' ' . $application->user->last_name,
+            'company_name' => $application->company->name,
+            'job_title' => $application->jobDescription->title,
+            'resume_path' => $application->resume,
+            'status' => $application->status,
+        ];
+
+        return response()->json($result, 200); // Success response
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validatedData = $request->validate([
+            'job_descriptions_id' => 'required|integer',
+            'status' => 'required|in:P,A,R', 
+        ]);
+
+        $user = Auth::user(); // Get the authenticated user
+
+        // Find the job application
+        $application = JobApplication::findOrFail($id); // Find or return a 404 error if not found
+
+        // Super Admin can update any application
+        if ($user->type === 'SA') {
+            // Update the application details
+            $application->update([
+                'status' => $validatedData['status'],
+            ]);
+
+            return response()->json(['message' => 'Job application updated successfully.'], 200);
+        }
+
+        // Company Admin can only update applications within their company
+        if ($user->type === 'CA') {
+            if ($application->company_id !== $user->company_id) {
+                return response()->json(['message' => 'You do not have permission to update this application.'], 403); // Forbidden response
+            }
+
+            // Update the application details if it belongs to the same company
+            $application->update([
+                'status' => $validatedData['status'],
+            ]);
+
+            return response()->json(['message' => 'Job application updated successfully.'], 200);
+        }
+
+        return response()->json(['message' => 'You do not have permission to update this application.'], 403); // Default forbidden response
+    }
+
+
+    public function destroy($id)
+    {
     }
 }
