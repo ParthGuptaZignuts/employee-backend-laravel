@@ -116,7 +116,7 @@ class JobApplicationController extends Controller
     public function update(Request $request, $id)
     {
         $validatedData = $request->validate([
-            'status' => 'required|in:P,A,R', 
+            'status' => 'required|in:P,A,R',
         ]);
 
         $user = Auth::user(); // Get the authenticated user
@@ -152,7 +152,41 @@ class JobApplicationController extends Controller
     }
 
 
-    public function destroy($id)
+    public function delete(Request $request, $id)
     {
+        $user = Auth::user(); // Get the authenticated user
+
+        // Find the job application
+        $application = JobApplication::findOrFail($id);
+
+        if ($user->type === 'SA') {
+            // Super Admin can choose soft or hard delete
+            if ($request->query('hard') === 'true') {
+                $application->forceDelete(); // Hard delete
+                return response()->json(['message' => 'Job application permanently deleted.'], 200);
+            } else {
+                $application->delete(); // Soft delete
+                return response()->json(['message' => 'Job application soft deleted.'], 200);
+            }
+        }
+
+        if ($user->type === 'CA') {
+            // Company Admin can only delete applications from their own company
+            if ($application->company_id !== $user->company_id) {
+                return response()->json(['message' => 'You do not have permission to delete this application.'], 403); // Forbidden response
+            }
+
+            // Company Admin can choose soft or hard delete
+            if ($request->query('hard') === 'true') {
+                $application->forceDelete(); // Hard delete
+                return response()->json(['message' => 'Job application permanently deleted.'], 200);
+            } else {
+                $application->delete(); // Soft delete
+                return response()->json(['message' => 'Job application soft deleted.'], 200);
+            }
+        }
+
+        // Default forbidden response
+        return response()->json(['message' => 'You do not have permission to delete this application.'], 403);
     }
 }

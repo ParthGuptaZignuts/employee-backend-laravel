@@ -4,12 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-// use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class JobApplication extends Model
 {
-    // use HasFactory,SoftDeletes;
-    use HasFactory;
+    use HasFactory,SoftDeletes;
     protected $table = 'jobs_applications';
     protected $fillable = ['user_id','company_id', 'job_descriptions_id', 'status' , 'resume'];
 
@@ -26,6 +25,9 @@ class JobApplication extends Model
     {
         return $this->belongsTo(JobDescription::class, 'job_descriptions_id'); // Make sure this field name matches your database schema
     }
-    
+    public function hardDelete()
+    {
+        return parent::delete();
+    }
 
 }
