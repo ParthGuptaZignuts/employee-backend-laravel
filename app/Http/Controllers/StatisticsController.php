@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Company;
 use App\Models\User;
 use App\Models\JobDescription;
+use App\Models\JobApplication;
 
 class StatisticsController extends Controller
 {
@@ -18,6 +19,7 @@ class StatisticsController extends Controller
             $totalCompanyAdmin = User::whereIn('type', ['CA'])->count();
             $totalEmployees = User::whereIn('type', ['E'])->count();
             $totalJobs = JobDescription::count();
+            $totalApplication = JobApplication::count();
 
             // Return the statistics as JSON response
             return response()->json([
@@ -25,6 +27,7 @@ class StatisticsController extends Controller
                 'total_employees' => $totalEmployees,
                 'total_ca' => $totalCompanyAdmin,
                 'total_jobs' => $totalJobs,
+                'total_Application' => $totalApplication
             ]);
         }
         // If the user is a company admin
@@ -37,11 +40,13 @@ class StatisticsController extends Controller
             $totalJobs = JobDescription::whereHas('company', function ($query) use ($companyId) {
                 $query->where('id', $companyId);
             })->count();
+            $totalApplications = JobApplication::where('company_id', $companyId)->count(); 
 
             // Return the statistics for the company as JSON response
             return response()->json([
                 'total_employees' => $totalEmployees,
                 'total_jobs' => $totalJobs,
+                'total_Application' => $totalApplications
             ]);
         }
         // If the user is neither a super admin nor a company admin
