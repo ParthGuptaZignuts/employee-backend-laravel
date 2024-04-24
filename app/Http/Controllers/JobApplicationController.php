@@ -116,7 +116,6 @@ class JobApplicationController extends Controller
     public function update(Request $request, $id)
     {
         $validatedData = $request->validate([
-            'job_descriptions_id' => 'required|integer',
             'status' => 'required|in:P,A,R', 
         ]);
 
