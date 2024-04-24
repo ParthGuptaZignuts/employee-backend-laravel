@@ -21,8 +21,8 @@ use Illuminate\Support\Facades\Route;
 Route::post('/register', [AuthenticationController::class, 'createUser']);
 Route::post('/login', [AuthenticationController::class, 'loginUser']);
 Route::post('/password/reset', [AuthenticationController::class, 'resetPassword']);
-Route::get('/companyinfo',[CompanyController::class, 'companyWithLogo']);
-Route::get("/jobsInfo",[JobDescriptionController::class, "AllJobsInfo"]);
+Route::get('/companyinfo', [CompanyController::class, 'companyWithLogo']);
+Route::get("/jobsInfo", [JobDescriptionController::class, "AllJobsInfo"]);
 
 
 // user registration protected routes
@@ -63,5 +63,9 @@ Route::middleware('auth:sanctum')->group(function () {
         });
     });
 
-    Route::post("/userJobDetails" ,[JobApplicationController::class, 'store']);
+    Route::middleware('checkUserType:SA,CA')->group(function () {
+        Route::get('allCandidateInfo', [JobApplicationController::class, 'getAllDetails']);
+    });
+
+    Route::post("/userJobDetails", [JobApplicationController::class, 'store']);
 });

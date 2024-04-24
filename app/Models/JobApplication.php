@@ -22,8 +22,8 @@ class JobApplication extends Model
     }
     public function jobDescription()
     {
-        return $this->belongsTo(JobDescription::class); 
+        return $this->belongsTo(JobDescription::class, 'job_descriptions_id'); // Make sure this field name matches your database schema
     }
-
+    
 
 }
