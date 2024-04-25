@@ -189,4 +189,46 @@ class JobApplicationController extends Controller
         // Default forbidden response
         return response()->json(['message' => 'You do not have permission to delete this application.'], 403);
     }
+
+    public function jobsStatus(Request $request)
+    {
+        $validatedData = $request->validate([
+            'user_id' => 'required|integer',
+        ]);
+
+        // Find the user to ensure they exist
+        $user = User::findOrFail($validatedData['user_id']);
+
+        // Helper function to get applications by status
+        $getApplicationsByStatus = function ($status) use ($user) {
+            return JobApplication::with(['company', 'jobDescription'])
+                ->where('user_id', $user->id)
+                ->where('status', $status) // Filter by the given status
+                ->get()
+                ->map(function ($application) {
+                    return [
+                        'job_application_id' => $application->id,
+                        'company_name' => $application->company->name,
+                        'company_logo' => $application->company->logo,
+                        'company_email' => $application->company->email,
+                        'company_address' => $application->company->address,
+                        'job_title' => $application->jobDescription->title,
+                    ];
+                });
+        };
+
+        // Get applications for different statuses
+        $acceptedApplications = $getApplicationsByStatus('A'); // Accepted applications
+        $rejectedApplications = $getApplicationsByStatus('R'); // Rejected applications
+        $pendingApplications = $getApplicationsByStatus('P'); // Pending applications
+
+        // Combine results into a response
+        $result = [
+            'accepted' => $acceptedApplications,
+            'rejected' => $rejectedApplications,
+            'pending' => $pendingApplications,
+        ];
+
+        return response()->json($result, 200); // Return response with HTTP status 200 for success
+    }
 }

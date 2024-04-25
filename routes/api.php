@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\JobDescription;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -23,6 +24,7 @@ Route::post('/login', [AuthenticationController::class, 'loginUser']);
 Route::post('/password/reset', [AuthenticationController::class, 'resetPassword']);
 Route::get('/companyinfo', [CompanyController::class, 'companyWithLogo']);
 Route::get("/jobsInfo", [JobDescriptionController::class, "AllJobsInfo"]);
+Route::get("/jobsStatus", [JobApplicationController::class, "JobsStatus"]);
 
 
 // user registration protected routes
@@ -63,6 +65,7 @@ Route::middleware('auth:sanctum')->group(function () {
         });
     });
 
+    // Job application routes for CRUD operations 
     Route::middleware('checkUserType:SA,CA')->group(function () {
         Route::prefix('allCandidateInfo')->group(function () {
             Route::get('', [JobApplicationController::class, 'getAllDetails']);
