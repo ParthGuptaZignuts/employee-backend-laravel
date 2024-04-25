@@ -228,14 +228,25 @@ class CompanyController extends Controller
         // Handle other user types if necessary
         return response()->json($companies);
     }
-    public function companyWithLogo()
+    public function companyWithLogo(Request $request)
     {
 
-        $companies = Company::select('name', 'logo')->limit(4)->get();
-        return ok(
-            'Companies with logos retrieved successfully',
-            $companies,
-            200
-        );
+        $token = $request->header('Authorization');
+
+        if ($token) {
+            // If token is provided, get all companies with logo
+            $companies = Company::select('name', 'logo')->get();
+            return response()->json([
+                'message' => 'All companies with logos retrieved successfully',
+                'data' => $companies
+            ], 200);
+        } else {
+            // If no token, limit the result to 4 companies with logo
+            $companies = Company::select('name', 'logo')->limit(4)->get();
+            return response()->json([
+                'message' => 'Limited companies with logos retrieved successfully',
+                'data' => $companies
+            ], 200);
+        }
     }
 }
