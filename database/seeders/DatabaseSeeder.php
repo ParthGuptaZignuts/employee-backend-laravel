@@ -20,12 +20,9 @@ class DatabaseSeeder extends Seeder
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
-        User::create([
-            'first_name' => 'Admin',
-            'last_name' => 'Admin',
-            'email' => 'admin@company.com',
-            'password' => Hash::make('password'),
-            'type' => 'SA',
+        $this->call([
+            SuperAdminSeeder::class,
+            PreferencesTableSeeder::class,
         ]);
     }
 }

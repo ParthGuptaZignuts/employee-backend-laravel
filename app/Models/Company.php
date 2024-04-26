@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Company extends Model
 {
     use HasFactory , SoftDeletes;
-    protected $fillable = ['name', 'email', 'website', 'logo', 'address', 'status','logo'];
+    protected $fillable = ['name', 'email', 'website', 'logo', 'address', 'status',];
     
     public function admin()
     {
