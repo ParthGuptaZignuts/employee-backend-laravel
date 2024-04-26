@@ -213,6 +213,43 @@ class CompanyController extends Controller
 
 
 
+    // public function getAllCompanies()
+    // {
+    //     $user = Auth::user();
+
+    //     // Check if the user is a Super Admin (SA)
+    //     if ($user->type === 'SA') {
+    //         $companies = Company::select('id', 'name')->get();
+    //     }
+    //     // Check if the user is a Company Admin (CA)
+    //     elseif ($user->type === 'CA') {
+    //         $companies = Company::select('id', 'name')->where('id', $user->company_id)->get();
+    //     }
+    //     // Handle other user types if necessary
+    //     return response()->json($companies);
+    // }
+    // public function companyWithLogo(Request $request)
+    // {
+
+    //     $token = $request->header('Authorization');
+
+    //     if ($token) {
+    //         // If token is provided, get all companies with logo
+    //         $companies = Company::select('name', 'logo')->get();
+    //         return response()->json([
+    //             'message' => 'All companies with logos retrieved successfully',
+    //             'data' => $companies
+    //         ], 200);
+    //     } else {
+    //         // If no token, limit the result to 4 companies with logo
+    //         $companies = Company::select('name', 'logo')->limit(4)->get();
+    //         return response()->json([
+    //             'message' => 'Limited companies with logos retrieved successfully',
+    //             'data' => $companies
+    //         ], 200);
+    //     }
+    // }
+
     public function getAllCompanies()
     {
         $user = Auth::user();
@@ -220,33 +257,29 @@ class CompanyController extends Controller
         // Check if the user is a Super Admin (SA)
         if ($user->type === 'SA') {
             $companies = Company::select('id', 'name')->get();
-        }
-        // Check if the user is a Company Admin (CA)
-        elseif ($user->type === 'CA') {
+        } elseif ($user->type === 'CA') {
+            // If the user is a Company Admin (CA)
             $companies = Company::select('id', 'name')->where('id', $user->company_id)->get();
+        } else {
+            // Handle other user types if necessary
+            return error('Unauthorized access', [], 'unauthorized', 403);
         }
-        // Handle other user types if necessary
-        return response()->json($companies);
+
+        return ok('Companies retrieved successfully', $companies);
     }
+
     public function companyWithLogo(Request $request)
     {
-
         $token = $request->header('Authorization');
 
         if ($token) {
             // If token is provided, get all companies with logo
             $companies = Company::select('name', 'logo')->get();
-            return response()->json([
-                'message' => 'All companies with logos retrieved successfully',
-                'data' => $companies
-            ], 200);
+            return ok('All companies with logos retrieved successfully', $companies);
         } else {
             // If no token, limit the result to 4 companies with logo
             $companies = Company::select('name', 'logo')->limit(4)->get();
-            return response()->json([
-                'message' => 'Limited companies with logos retrieved successfully',
-                'data' => $companies
-            ], 200);
+            return ok('Limited companies with logos retrieved successfully', $companies);
         }
     }
 }

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\JobDescription;
 
+require_once app_path('Http/Helpers/APIResponse.php');
+
 class JobDescriptionController extends Controller
 {
     // Method to retrieve job descriptions based on user's role and filters
@@ -46,7 +48,8 @@ class JobDescriptionController extends Controller
             $jobDescriptions = $jobDescriptions->with('company')->get();
         }
 
-        return response()->json($jobDescriptions);
+        // return response()->json($jobDescriptions);
+        return ok('Job descriptions retrieved successfully', $jobDescriptions);
     }
 
     // Method to store a new job description
@@ -77,7 +80,7 @@ class JobDescriptionController extends Controller
         // Create job description
         $jobDescription = JobDescription::create($validator);
 
-        return response()->json($jobDescription, 201);
+        return ok('Job description created successfully', $jobDescription, 201);
     }
 
 
@@ -89,10 +92,10 @@ class JobDescriptionController extends Controller
 
         // return if job does not exist
         if (!$jobDescription) {
-            return response()->json(['error' => 'Job not found'], 404);
+            return error('Job not found', [], 'notfound', 404);
         }
 
-        return response()->json($jobDescription);
+        return ok('Job description retrieved successfully', $jobDescription);
     }
 
     // Method to update an existing job description
@@ -121,18 +124,18 @@ class JobDescriptionController extends Controller
         $jobDescription = JobDescription::find($id);
 
         if (!$jobDescription) {
-            return response()->json(['error' => 'Job not found'], 404);
+            return error('Job not found', [], 'notfound', 404);
         }
 
         // Check if the user has permission to update this job
         if ($request->user()->type !== 'SA' && $jobDescription->company_id !== $request->user()->company_id) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return error('Unauthorized', [], 'unauthorized', 403);
         }
 
         // Update job description
         $jobDescription->update($validator);
 
-        return response()->json(['message' => 'Job updated successfully', 'job' => $jobDescription], 200);
+        return ok('Job updated successfully', $jobDescription, 200);
     }
 
     // Method to delete a job description
@@ -142,26 +145,26 @@ class JobDescriptionController extends Controller
         $jobDescription = JobDescription::find($id);
 
         if (!$jobDescription) {
-            return response()->json(['error' => 'Job not found'], 404);
+            return error('Job not found', [], 'notfound', 404);
         }
 
         // Check if the user has permission to delete this job
         if ($request->user()->type !== 'SA' && $jobDescription->company_id !== $request->user()->company_id) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return error('Unauthorized', [], 'unauthorized', 403);
         }
 
         // Perform soft delete or permanent delete based on request parameter
         if ($request->has('permanent_delete') && $request->boolean('permanent_delete')) {
             $jobDescription->forceDelete(); // Permanent delete
-            return response()->json(['message' => 'Job permanently deleted successfully'], 200);
+            return ok('Job permanently deleted successfully', [], 200);
         } else {
             $jobDescription->delete(); // Soft delete
-            return response()->json(['message' => 'Job deleted successfully'], 200);
+            return ok('Job deleted successfully', [], 200);
         }
     }
 
     public function AllJobsInfo(){
         $jobDescriptions = JobDescription::with(['company:id,name,logo,email,address'])->get();
-        return response()->json($jobDescriptions);
+        return ok('All job information retrieved successfully', $jobDescriptions);
     }
 }
