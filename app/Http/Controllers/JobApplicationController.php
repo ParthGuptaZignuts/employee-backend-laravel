@@ -191,31 +191,34 @@ class JobApplicationController extends Controller
     }
 
     public function jobsStatus(Request $request)
-{
-    // Get the user ID from the query parameter
-    $userId = $request->query('user_id');
+    {
+        // Get the user ID from the query parameter
+        $userId = $request->query('user_id');
 
-    // Validate that the user ID is required and is an integer
-    $validatedData = $request->validate([
-        'user_id' => 'required|integer',
-    ]);
+        // Validate that the user ID is required and is an integer
+        $validatedData = $request->validate([
+            'user_id' => 'required|integer',
+        ]);
 
-    // Get the job applications for the given user ID
-    $applications = JobApplication::with(['jobDescription', 'company'])
-        ->where('user_id', $validatedData['user_id'])
-        ->get();
+        // Get the job applications for the given user ID
+        $applications = JobApplication::with(['jobDescription', 'company'])
+            ->where('user_id', $validatedData['user_id'])
+            ->get();
 
-    // Format the response
-    $result = $applications->map(function ($application) {
-        return [
-            'application_id' => $application->id,
-            'job_title' => $application->jobDescription->title,
-            'company_name' => $application->company->name,
-            'status' => $application->status,
-        ];
-    });
+        // Format the response
+        $result = $applications->map(function ($application) {
+            return [
+                'application_id' => $application->id,
+                'job_title' => $application->jobDescription->title,
+                'company_name' => $application->company->name,
+                'company_location' => $application->company->address,
+                'job_expiry' => $application->jobDescription->expiry_date,
+                'job_salary' => $application->jobDescription->salary,
+                'status' => $application->status,
+            ];
+        });
 
-    // Return the formatted response as JSON
-    return response()->json($result, 200);
-}
+        // Return the formatted response as JSON
+        return response()->json($result, 200);
+    }
 }
