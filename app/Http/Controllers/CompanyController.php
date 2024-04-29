@@ -37,12 +37,22 @@ class CompanyController extends Controller
         return $nextEmployeeNumber;
     }
 
-
+    /**
+     * filtering the companies , returns on the basis of status, get all companies 
+     * @method GET
+     * @author Parth Gupta (Zignuts Technolab)
+     * @authentication Requires authentication
+     * @middleware auth:api,checkUserType:SA'(superAdmin)
+     * @route /companies
+     * @return \Illuminate\Http\Response
+     */
     public function index(Request $request)
     {
+        // checking whether search or status is there or not
         $searchQuery = $request->input('search');
         $status = $request->input('status');
 
+        // if search is there
         $query = Company::query();
 
         // search filter provided
@@ -60,6 +70,16 @@ class CompanyController extends Controller
 
         return ok('Companies retrieved successfully', $companies);
     }
+
+    /**
+     * storing all the companies
+     * @method POST
+     * @author Parth Gupta (Zignuts Technolab)
+     * @authentication Requires authentication
+     * @middleware auth:api,checkUserType:SA'(superAdmin)
+     * @route /create
+     * @return \Illuminate\Http\Response
+     */
 
     public function store(Request $request)
     {
@@ -120,6 +140,15 @@ class CompanyController extends Controller
         return ok('Company created successfully', $company, 201);
     }
 
+    /**
+     * updating the specifics companies
+     * @method POST
+     * @author Parth Gupta (Zignuts Technolab)
+     * @authentication Requires authentication
+     * @middleware auth:api,checkUserType:SA'(superAdmin)
+     * @route /companies/{id}
+     * @return \Illuminate\Http\Response
+     */
 
     public function update(Request $request, string $id)
     {
@@ -170,6 +199,16 @@ class CompanyController extends Controller
         return ok('Company updated successfully', $company, 200);
     }
 
+    /**
+     * showing the particular company
+     * @method GET
+     * @author Parth Gupta (Zignuts Technolab)
+     * @authentication Requires authentication
+     * @middleware auth:api,checkUserType:SA'(superAdmin)
+     * @route /companies/{id}
+     * @return \Illuminate\Http\Response
+     */
+
     public function show($companyId)
     {
         // get company information with admin
@@ -182,7 +221,16 @@ class CompanyController extends Controller
         return ok('Company retrieved successfully', $company);
     }
 
-    // with job description deleted successfully
+    /**
+     * deleting (soft delete hard delete) the particular company
+     * @method POST
+     * @author Parth Gupta (Zignuts Technolab)
+     * @authentication Requires authentication
+     * @middleware auth:api,checkUserType:SA'(superAdmin)
+     * @route /companies/delete/{id}
+     * @return \Illuminate\Http\Response
+     */
+
     public function destroy(string $id, Request $request)
     {
         // Find company by ID
@@ -211,6 +259,16 @@ class CompanyController extends Controller
         return ok('Company, its associated admin, and job descriptions deleted successfully');
     }
 
+    /**
+     * getting all the companies
+     * @method GET
+     * @author Parth Gupta (Zignuts Technolab)
+     * @authentication Requires authentication
+     * @middleware auth:api,checkUserType:SA,CA'(superAdmin , companyAdmin)
+     * @route /getallcompanies
+     * @return \Illuminate\Http\Response
+     */
+
     public function getAllCompanies()
     {
         $user = Auth::user();
@@ -228,6 +286,13 @@ class CompanyController extends Controller
 
         return ok('Companies retrieved successfully', $companies);
     }
+    /**
+     * getting all the companies with logos (with token), getting 4 companies with logos (without token)
+     * @method GET
+     * @author Parth Gupta (Zignuts Technolab)
+     * @route /companyWithLogo
+     * @return \Illuminate\Http\Response
+     */
 
     public function companyWithLogo(Request $request)
     {
