@@ -39,7 +39,15 @@ class EmployeeController extends Controller
         return $nextEmployeeNumber;
     }
 
-    // Method to retrieve employees based on search and company filters
+    /**
+     * filtering the employees , returns on the basis of types, get all employees 
+     * @method GET
+     * @author Parth Gupta (Zignuts Technolab)
+     * @authentication Requires authentication
+     * @middleware auth:api,checkUserType:SA ,CA'(superAdmin , companyAdmin)
+     * @route /employees
+     * @return \Illuminate\Http\Response
+     */
     public function index(Request $request)
     {
         $user = auth()->user();
@@ -56,6 +64,7 @@ class EmployeeController extends Controller
                 $query->where('company_id', $user->company_id);
             }
 
+            // give the search results if the length is more than three characters
             if ($searchQuery && strlen($searchQuery) >= 3) {
                 $query->where(function ($query) use ($searchQuery) {
                     $query->where('first_name', 'like', '%' . $searchQuery . '%')
@@ -63,10 +72,12 @@ class EmployeeController extends Controller
                 });
             }
 
+            // result on the basis of filter
             if ($companyIdFilter) {
                 $query->where('company_id', $companyIdFilter);
             }
 
+            // getting all the employees
             $employees = $query->get();
 
             return ok('Employees retrieved successfully', $employees);
@@ -75,7 +86,15 @@ class EmployeeController extends Controller
         return error('Unauthorized', [], 'forbidden');
     }
 
-    // Method to store a new employee
+    /**
+     * storing the employee
+     * @method POST
+     * @author Parth Gupta (Zignuts Technolab)
+     * @authentication Requires authentication
+     * @middleware auth:api,checkUserType:SA ,CA'(superAdmin , companyAdmin)
+     * @route /employee/create
+     * @return \Illuminate\Http\Response
+     */
     public function store(Request $request)
     {
         // Validation rules for employee creation
@@ -139,14 +158,18 @@ class EmployeeController extends Controller
         }
     }
 
-    // Method to update an existing employee
+    /**
+     * updating the particular employee
+     * @method POST
+     * @author Parth Gupta (Zignuts Technolab)
+     * @authentication Requires authentication
+     * @middleware auth:api,checkUserType:SA ,CA'(superAdmin , companyAdmin)
+     * @route /employee/update/{id}
+     * @return \Illuminate\Http\Response
+     */
     public function update(Request $request, string $id)
     {
-        $user = User::find($id);
-
-        if (!$user) {
-            return error('User not found', [], 'notfound');
-        }
+        $user = User::findOrFail($id);
 
         // Check user's role for authorization to update employee
         if (auth()->user()->type === 'SA' || (auth()->user()->type === 'CA' && auth()->user()->company_id === $user->company_id)) {
@@ -183,7 +206,15 @@ class EmployeeController extends Controller
         }
     }
 
-    // Method to retrieve details of a specific employee
+    /**
+     * showing the particular employee
+     * @method GET
+     * @author Parth Gupta (Zignuts Technolab)
+     * @authentication Requires authentication
+     * @middleware auth:api,checkUserType:SA ,CA'(superAdmin , companyAdmin)
+     * @route /employee/{id}
+     * @return \Illuminate\Http\Response
+     */
     public function show(string $id)
     {
         $user = User::with('company:id,name')->find($id);
@@ -200,36 +231,43 @@ class EmployeeController extends Controller
         }
     }
 
-    // Method to delete an employee
+    /**
+     * deleting the particular employee
+     * @method POST
+     * @author Parth Gupta (Zignuts Technolab)
+     * @authentication Requires authentication
+     * @middleware auth:api,checkUserType:SA ,CA'(superAdmin , companyAdmin)
+     * @route /employee/{id}
+     * @return \Illuminate\Http\Response
+     */
     public function destroy(string $id, Request $request)
-{
-    $user = User::find($id);
+    {
+        $user = User::find($id);
 
-    if (!$user) {
-        return error('User not found', [], 'notfound');
-    }
-
-    // Check user's role for authorization to delete employee
-    if (auth()->user()->type === 'SA') {
-        // Super admin can delete any user except other super admins and company admins
-        if ($user->type === 'SA' || $user->type === 'CA') {
-            return error('Super admin cannot delete another super admin or company admin', [], 'forbidden');
+        if (!$user) {
+            return error('User not found', [], 'notfound');
         }
-    } elseif (auth()->user()->type === 'CA') {
-        // Company admin cannot delete themselves or other company admins
-        if ($user->type === 'CA') {
-            return error('Company admin cannot be deleted or soft deleted', [], 'forbidden');
+
+        // Check user's role for authorization to delete employee
+        if (auth()->user()->type === 'SA') {
+            // Super admin can delete any user except other super admins and company admins
+            if ($user->type === 'SA' || $user->type === 'CA') {
+                return error('Super admin cannot delete another super admin or company admin', [], 'forbidden');
+            }
+        } elseif (auth()->user()->type === 'CA') {
+            // Company admin cannot delete themselves or other company admins
+            if ($user->type === 'CA') {
+                return error('Company admin cannot be deleted or soft deleted', [], 'forbidden');
+            }
+        }
+
+        // Proceed with deletion
+        if ($request->has('permanent_delete') && $request->boolean('permanent_delete')) {
+            $user->forceDelete();
+            return ok('User permanently deleted successfully');
+        } else {
+            $user->delete();
+            return ok('User soft deleted successfully');
         }
     }
-
-    // Proceed with deletion
-    if ($request->has('permanent_delete') && $request->boolean('permanent_delete')) {
-        $user->forceDelete();
-        return ok('User permanently deleted successfully');
-    } else {
-        $user->delete();
-        return ok('User soft deleted successfully');
-    }
-}
-
 }
