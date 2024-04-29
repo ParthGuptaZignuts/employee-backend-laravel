@@ -8,6 +8,7 @@ use App\Models\JobApplication;
 use App\Models\User;
 use App\Models\JobDescription;
 use Illuminate\Support\Facades\Auth;
+require_once app_path('Http/Helpers/APIResponse.php');
 
 class JobApplicationController extends Controller
 {
@@ -16,7 +17,7 @@ class JobApplicationController extends Controller
     {
         // Validate input and ensure the resume is provided and is a file
         $validatedData = $request->validate([
-            'email' => 'required |email',
+            'email' => 'required|email',
             'job_descriptions_id' => 'required|integer',
             'resume' => 'required|file|mimes:pdf,doc,docx|max:10240',
         ]);
@@ -30,8 +31,7 @@ class JobApplicationController extends Controller
             ->first();
 
         if ($existingApplication) {
-            // Return response indicating that the user has already applied for this job
-            return response()->json(['message' => 'You have already applied for this post and your request is pending.'], 400);
+            return error('You have already applied for this post and your request is pending.', [], 'duplicate', 400);
         }
 
         // Store the uploaded file and get the file path
@@ -43,31 +43,33 @@ class JobApplicationController extends Controller
             'company_id' => $companyId,
             'job_descriptions_id' => $validatedData['job_descriptions_id'],
             'resume' => $resumePath,
-            'status' => $validatedData['status'] ?? 'P',
+            'status' => $validatedData['status'] ?? 'P', // Default to 'Pending' if not provided
         ]);
 
-        return response()->json($application, 201);
+        return ok('Job application created successfully.', $application, 201);
     }
+
 
     public function getAllDetails()
     {
         $user = Auth::user();
 
         if ($user->type === 'SA') {
-            // If the user is a Super Admin, they should see all applications
+            // Super Admin sees all applications
             $applications = JobApplication::with(['user', 'company', 'jobDescription'])->get();
         } elseif ($user->type === 'CA') {
-            // If the user is a Company Admin, only show applications from their company
+            // Company Admin sees only applications from their own company
             $applications = JobApplication::with(['user', 'company', 'jobDescription'])
                 ->where('company_id', $user->company_id) // Filter by the company of the current user
                 ->get();
+        } else {
+            return error('Unauthorized access.', [], 'unauthorized', 403);
         }
 
-        // Format the response
         $result = $applications->map(function ($application) {
             return [
                 'application_id' => $application->id,
-                'candidate_name' => $application->user->first_name,
+                'candidate_name' => $application->user->first_name . ' ' . $application->user->last_name,
                 'company_name' => $application->company->name,
                 'job_title' => $application->jobDescription->title,
                 'resume_path' => $application->resume,
@@ -75,32 +77,22 @@ class JobApplicationController extends Controller
             ];
         });
 
-        return response()->json($result, 200);
+        return ok('Job applications retrieved successfully.', $result);
     }
 
     public function show($id)
     {
-        $user = Auth::user(); // Get the authenticated user
+        $user = Auth::user();
 
         // Find the job application with its relations
         $application = JobApplication::with(['user', 'company', 'jobDescription'])->findOrFail($id);
 
-        // Determine if the authenticated user has permission to view this application
-        if ($user->type === 'SA') {
-            // Super Admin can view all applications
-        } elseif ($user->type === 'CA') {
-            // Company Admin can only view applications from their company
-            if ($application->company_id !== $user->company_id) {
-                return response()->json(['message' => 'You do not have permission to view this application.'], 403);
-            }
-        } else {
-            // Regular users can only view their own applications
-            if ($application->user_id !== $user->id) {
-                return response()->json(['message' => 'You do not have permission to view this application.'], 403);
-            }
+        if ($user->type === 'CA' && $application->company_id !== $user->company_id) {
+            return error('You do not have permission to view this application.', [], 'unauthorized', 403);
+        } elseif ($user->type !== 'SA' && $application->user_id !== $user->id) {
+            return error('You do not have permission to view this application.', [], 'unauthorized', 403);
         }
 
-        // Return the application details in a formatted response
         $result = [
             'application_id' => $application->id,
             'candidate_name' => $application->user->first_name . ' ' . $application->user->last_name,
@@ -110,7 +102,7 @@ class JobApplicationController extends Controller
             'status' => $application->status,
         ];
 
-        return response()->json($result, 200); // Success response
+        return ok('Job application retrieved successfully.', $result);
     }
 
     public function update(Request $request, $id)
@@ -119,93 +111,71 @@ class JobApplicationController extends Controller
             'status' => 'required|in:P,A,R',
         ]);
 
-        $user = Auth::user(); // Get the authenticated user
+        $user = Auth::user();
 
         // Find the job application
-        $application = JobApplication::findOrFail($id); // Find or return a 404 error if not found
+        $application = JobApplication::findOrFail($id);
 
-        // Super Admin can update any application
-        if ($user->type === 'SA') {
-            // Update the application details
-            $application->update([
-                'status' => $validatedData['status'],
-            ]);
-
-            return response()->json(['message' => 'Job application updated successfully.'], 200);
+        if ($user->type === 'CA' && $application->company_id !== $user->company_id) {
+            return error('You do not have permission to update this application.', [], 'unauthorized', 403);
+        } elseif ($user->type !== 'SA' && $application->user_id !== $user->id) {
+            return error('Unauthorized update request.', [], 'unauthorized', 403);
         }
 
-        // Company Admin can only update applications within their company
-        if ($user->type === 'CA') {
-            if ($application->company_id !== $user->company_id) {
-                return response()->json(['message' => 'You do not have permission to update this application.'], 403); // Forbidden response
-            }
+        $application->update([
+            'status' => $validatedData['status'],
+        ]);
 
-            // Update the application details if it belongs to the same company
-            $application->update([
-                'status' => $validatedData['status'],
-            ]);
-
-            return response()->json(['message' => 'Job application updated successfully.'], 200);
-        }
-
-        return response()->json(['message' => 'You do not have permission to update this application.'], 403); // Default forbidden response
+        return ok('Job application updated successfully.', $application);
     }
 
 
     public function delete(Request $request, $id)
     {
-        $user = Auth::user(); // Get the authenticated user
+        $user = Auth::user();
 
         // Find the job application
         $application = JobApplication::findOrFail($id);
 
         if ($user->type === 'SA') {
-            // Super Admin can choose soft or hard delete
             if ($request->query('hard') === 'true' && $request->boolean('hard')) {
                 $application->forceDelete(); // Hard delete
-                return response()->json(['message' => 'Job application permanently deleted.'], 200);
+                return ok('Job application permanently deleted.', [], 200);
             } else {
                 $application->delete(); // Soft delete
-                return response()->json(['message' => 'Job application soft deleted.'], 200);
+                return ok('Job application soft deleted.', [], 200);
             }
-        }
-
-        if ($user->type === 'CA') {
-            // Company Admin can only delete applications from their own company
+        } elseif ($user->type === 'CA') {
             if ($application->company_id !== $user->company_id) {
-                return response()->json(['message' => 'You do not have permission to delete this application.'], 403); // Forbidden response
+                return error('You do not have permission to delete this application.', [], 'unauthorized', 403);
             }
 
-            // Company Admin can choose soft or hard delete
             if ($request->query('hard') === 'true' && $request->boolean('hard')) {
-                $application->forceDelete(); // Hard delete
-                return response()->json(['message' => 'Job application permanently deleted.'], 200);
+                $application->forceDelete();
+                return ok('Job application permanently deleted.', [], 200);
             } else {
-                $application->delete(); // Soft delete
-                return response()->json(['message' => 'Job application soft deleted.'], 200);
+                $application->delete();
+                return ok('Job application soft deleted.', [], 200);
             }
         }
 
-        // Default forbidden response
-        return response()->json(['message' => 'You do not have permission to delete this application.'], 403);
+        return error('You do not have permission to delete this application.', [], 'unauthorized', 403);
     }
 
     public function jobsStatus(Request $request)
     {
-        // Get the user ID from the query parameter
-        $userId = $request->query('user_id');
-
-        // Validate that the user ID is required and is an integer
         $validatedData = $request->validate([
             'user_id' => 'required|integer',
         ]);
 
-        // Get the job applications for the given user ID
         $applications = JobApplication::with(['jobDescription', 'company'])
             ->where('user_id', $validatedData['user_id'])
             ->get();
 
-        // Format the response
+        if ($applications->isEmpty()) {
+            return error('No job applications found for this user.', [], 'notfound', 404);
+        }
+
         $result = $applications->map(function ($application) {
             return [
                 'application_id' => $application->id,
@@ -218,7 +188,6 @@ class JobApplicationController extends Controller
             ];
         });
 
-        // Return the formatted response as JSON
-        return response()->json($result, 200);
+        return ok('Job applications for the user retrieved successfully.', $result);
     }
 }
