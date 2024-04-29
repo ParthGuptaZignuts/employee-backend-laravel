@@ -13,6 +13,6 @@ class JobsSeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\JobDescription::factory(5)->create();
+        \App\Models\JobDescription::factory(10)->create();
     }
 }

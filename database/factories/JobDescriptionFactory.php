@@ -60,7 +60,7 @@ class JobDescriptionFactory extends Factory
         $Name = $this->faker->jobTitle;
 
         return [
-            'company_id' => 1, 
+            'company_id' => rand(1,5), 
             'title' =>substr($Name, 0, 5), 
             'salary' => $this->faker->numberBetween(50000, 100000), 
             'employment_type' => $employmentType,
