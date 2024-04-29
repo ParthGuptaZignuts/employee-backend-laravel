@@ -160,6 +160,7 @@ class AuthenticationController extends Controller
             return $status === Password::PASSWORD_RESET
                 ? ok('Password reset successfully.')
                 : error('Invalid token or email. Please request a new reset link.', [], 'error');
+                
         } catch (\Exception $e) {
             return error('An unexpected error occurred.', [], $e);
         }
