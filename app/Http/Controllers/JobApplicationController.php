@@ -18,7 +18,7 @@ class JobApplicationController extends Controller
      * @method POST
      * @author Parth Gupta (Zignuts Technolab)
      * @authentication Requires authentication
-     * @middleware auth:api,
+     * @middleware auth:api,'checkUserType:SA,CA'
      * @route /userJobDetails
      * @return \Illuminate\Http\Response
      */

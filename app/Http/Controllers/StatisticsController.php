@@ -10,6 +10,15 @@ use App\Models\JobApplication;
 
 class StatisticsController extends Controller
 {
+    /**
+     * Method to get all the statistics of total companies total jobs , total employees total company admin and total jobs applications
+     * @method GET
+     * @author Parth Gupta (Zignuts Technolab)
+     * @authentication Requires authentication
+     * @middleware auth:api,
+     * @route /statistics
+     * @return \Illuminate\Http\Response
+     */
     public function getStatistics(Request $request)
     {
         // If the user is a super admin
@@ -40,7 +49,7 @@ class StatisticsController extends Controller
             $totalJobs = JobDescription::whereHas('company', function ($query) use ($companyId) {
                 $query->where('id', $companyId);
             })->count();
-            $totalApplications = JobApplication::where('company_id', $companyId)->count(); 
+            $totalApplications = JobApplication::where('company_id', $companyId)->count();
 
             // Return the statistics for the company as JSON response
             return response()->json([

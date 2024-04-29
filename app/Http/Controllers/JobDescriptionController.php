@@ -9,7 +9,15 @@ require_once app_path('Http/Helpers/APIResponse.php');
 
 class JobDescriptionController extends Controller
 {
-    // Method to retrieve job descriptions based on user's role and filters
+    /**
+     * Method to retrieve job descriptions based on user's role and filters
+     * @method GET
+     * @author Parth Gupta (Zignuts Technolab)
+     * @authentication Requires authentication
+     * @middleware auth:api,'checkUserType:SA,CA'
+     * @route /jobs
+     * @return \Illuminate\Http\Response
+     */
     public function index(Request $request)
     {
         $jobDescriptions = JobDescription::query();
@@ -52,7 +60,15 @@ class JobDescriptionController extends Controller
         return ok('Job descriptions retrieved successfully', $jobDescriptions);
     }
 
-    // Method to store a new job description
+    /**
+     * Method to store a new job description
+     * @method POST
+     * @author Parth Gupta (Zignuts Technolab)
+     * @authentication Requires authentication
+     * @middleware auth:api,'checkUserType:SA,CA'
+     * @route /jobs/create
+     * @return \Illuminate\Http\Response
+     */
     public function store(Request $request)
     {
         // Validation rules
@@ -82,9 +98,16 @@ class JobDescriptionController extends Controller
 
         return ok('Job description created successfully', $jobDescription, 201);
     }
+    /**
+     * Method to retrieve details of a specific job description
+     * @method GET
+     * @author Parth Gupta (Zignuts Technolab)
+     * @authentication Requires authentication
+     * @middleware auth:api,'checkUserType:SA,CA'
+     * @route /jobs/{id}
+     * @return \Illuminate\Http\Response
+     */
 
-
-    // Method to retrieve details of a specific job description
     public function show(string $id)
     {
         // get job by id
@@ -98,7 +121,15 @@ class JobDescriptionController extends Controller
         return ok('Job description retrieved successfully', $jobDescription);
     }
 
-    // Method to update an existing job description
+    /**
+     * Method to update an existing job description
+     * @method POST
+     * @author Parth Gupta (Zignuts Technolab)
+     * @authentication Requires authentication
+     * @middleware auth:api,'checkUserType:SA,CA'
+     * @route /jobs/update/{id}
+     * @return \Illuminate\Http\Response
+     */
     public function update(Request $request, string $id)
     {
         // Validation rules
@@ -138,7 +169,15 @@ class JobDescriptionController extends Controller
         return ok('Job updated successfully', $jobDescription, 200);
     }
 
-    // Method to delete a job description
+    /**
+     * Method to delete a job description
+     * @method POST
+     * @author Parth Gupta (Zignuts Technolab)
+     * @authentication Requires authentication
+     * @middleware auth:api,'checkUserType:SA,CA'
+     * @route /jobs/delete/{id}
+     * @return \Illuminate\Http\Response
+     */
     public function destroy(Request $request, string $id)
     {
         // Find job description
@@ -162,8 +201,15 @@ class JobDescriptionController extends Controller
             return ok('Job deleted successfully', [], 200);
         }
     }
-
-    public function AllJobsInfo(){
+    /**
+     * Method to get all the job descriptions
+     * @method GET
+     * @author Parth Gupta (Zignuts Technolab)
+     * @route /jobsInfo
+     * @return \Illuminate\Http\Response
+     */
+    public function AllJobsInfo()
+    {
         $jobDescriptions = JobDescription::with(['company:id,name,logo,email,address'])->get();
         return ok('All job information retrieved successfully', $jobDescriptions);
     }
