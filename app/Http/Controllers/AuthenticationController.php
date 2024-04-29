@@ -7,14 +7,19 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
-use App\Models\Company;
 use App\Models\User;
-use App\Models\JobDescription;
 
 require_once app_path('Http/Helpers/APIResponse.php');
 
 class AuthenticationController extends Controller
 {
+    /**
+     * creating the users for registration
+     * @method POST
+     * @author Parth Gupta (Zignuts Technolab)
+     * @route /register
+     * @return \Illuminate\Http\Response
+     */
     public function createUser(Request $request)
     {
         // checking validation
@@ -22,9 +27,9 @@ class AuthenticationController extends Controller
             'first_name' => 'required|string',
             'last_name' => 'required|string',
             'email' => 'required|email|unique:users',
-            'phone' =>'required|string',
-            'dob' =>'required|date',
-            'city' =>'required|string',
+            'phone' => 'required|string',
+            'dob' => 'required|date',
+            'city' => 'required|string',
             'password' => 'required|string|confirmed',
         ]);
 
@@ -42,6 +47,13 @@ class AuthenticationController extends Controller
         return ok('User Created Successfully', $user);
     }
 
+    /**
+     * login in the users
+     * @method POST
+     * @author Parth Gupta (Zignuts Technolab)
+     * @route /login
+     * @return \Illuminate\Http\Response
+     */
     public function loginUser(Request $request)
     {
         // checking required parameters
@@ -63,6 +75,15 @@ class AuthenticationController extends Controller
         return ok('User Logged In Successfully', ['user' => $user, 'token' => $user->createToken("API TOKEN")->plainTextToken]);
     }
 
+    /**
+     * geting all the users
+     * @method GET
+     * @author Parth Gupta (Zignuts Technolab)
+     * @authentication Requires authentication
+     * @middleware auth:api,
+     * @route /user
+     * @return \Illuminate\Http\Response
+     */
     public function getUser(Request $request)
     {
         // fetching the user
@@ -70,6 +91,15 @@ class AuthenticationController extends Controller
         return ok('User details retrieved successfully', $user);
     }
 
+    /**
+     * login out the users
+     * @method POST
+     * @author Parth Gupta (Zignuts Technolab)
+     * @authentication Requires authentication
+     * @middleware auth:api,
+     * @route /logout
+     * @return \Illuminate\Http\Response
+     */
     public function logout(Request $request)
     {
         // Check if the user is authenticated
@@ -82,7 +112,13 @@ class AuthenticationController extends Controller
             return error('User not authenticated', [], 'unauthenticated');
         }
     }
-
+    /**
+     * resting the password of the users
+     * @method POST
+     * @author Parth Gupta (Zignuts Technolab)
+     * @route /password/reset
+     * @return \Illuminate\Http\Response
+     */
     public function resetPassword(Request $request)
     {
         // checking validation 
@@ -106,5 +142,4 @@ class AuthenticationController extends Controller
             ? ok('Password reset successfully.')
             : error('Invalid token or email. Please request a new reset link.', [], 'error');
     }
-
 }
