@@ -48,6 +48,7 @@ class CompanyController extends Controller
      * @authentication Requires authentication
      * @middleware auth:api,checkUserType:SA'(superAdmin)
      * @route /companies
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
@@ -86,6 +87,7 @@ class CompanyController extends Controller
      * @authentication Requires authentication
      * @middleware auth:api,checkUserType:SA'(superAdmin)
      * @route /create
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
 
@@ -158,6 +160,8 @@ class CompanyController extends Controller
      * @author Parth Gupta (Zignuts Technolab)
      * @authentication Requires authentication
      * @middleware auth:api,checkUserType:SA'(superAdmin)
+     * @param \Illuminate\Http\Request $request
+     * @param string id
      * @route /companies/{id}
      * @return \Illuminate\Http\Response
      */
@@ -221,6 +225,7 @@ class CompanyController extends Controller
      * @author Parth Gupta (Zignuts Technolab)
      * @authentication Requires authentication
      * @middleware auth:api,checkUserType:SA'(superAdmin)
+     * @param string company id
      * @route /companies/{id}
      * @return \Illuminate\Http\Response
      */
@@ -248,6 +253,8 @@ class CompanyController extends Controller
      * @authentication Requires authentication
      * @middleware auth:api,checkUserType:SA'(superAdmin)
      * @route /companies/delete/{id}
+     * @param \Illuminate\Http\Request $request
+     * @param string $id
      * @return \Illuminate\Http\Response
      */
 
@@ -319,6 +326,7 @@ class CompanyController extends Controller
      * @method GET
      * @author Parth Gupta (Zignuts Technolab)
      * @route /companyWithLogo
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
 

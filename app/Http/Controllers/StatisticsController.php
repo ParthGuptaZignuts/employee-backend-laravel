@@ -18,6 +18,7 @@ class StatisticsController extends Controller
      * @authentication Requires authentication
      * @middleware auth:api,
      * @route /statistics
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function getStatistics(Request $request)

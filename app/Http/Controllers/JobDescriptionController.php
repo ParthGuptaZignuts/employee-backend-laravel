@@ -16,6 +16,7 @@ class JobDescriptionController extends Controller
      * @authentication Requires authentication
      * @middleware auth:api,'checkUserType:SA,CA'
      * @route /jobs
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
@@ -71,6 +72,7 @@ class JobDescriptionController extends Controller
      * @authentication Requires authentication
      * @middleware auth:api,'checkUserType:SA,CA'
      * @route /jobs/create
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -113,6 +115,7 @@ class JobDescriptionController extends Controller
      * @authentication Requires authentication
      * @middleware auth:api,'checkUserType:SA,CA'
      * @route /jobs/{id}
+     * @param string $id
      * @return \Illuminate\Http\Response
      */
 
@@ -140,6 +143,8 @@ class JobDescriptionController extends Controller
      * @authentication Requires authentication
      * @middleware auth:api,'checkUserType:SA,CA'
      * @route /jobs/update/{id}
+     * @param \Illuminate\Http\Request $request
+     * @param string $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, string $id)
@@ -192,6 +197,8 @@ class JobDescriptionController extends Controller
      * @authentication Requires authentication
      * @middleware auth:api,'checkUserType:SA,CA'
      * @route /jobs/delete/{id}
+     * @param \Illuminate\Http\Request $request
+     * @param string $id
      * @return \Illuminate\Http\Response
      */
     public function destroy(Request $request, string $id)

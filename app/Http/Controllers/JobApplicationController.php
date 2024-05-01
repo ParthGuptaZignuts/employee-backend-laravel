@@ -20,6 +20,7 @@ class JobApplicationController extends Controller
      * @authentication Requires authentication
      * @middleware auth:api,'checkUserType:SA,CA'
      * @route /userJobDetails
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -116,6 +117,7 @@ class JobApplicationController extends Controller
      * @authentication Requires authentication
      * @middleware auth:api,checkUserType:SA ,CA'(superAdmin , companyAdmin)
      * @route /allCandidateInfo/{id}
+     * @param string $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -156,6 +158,8 @@ class JobApplicationController extends Controller
      * @authentication Requires authentication
      * @middleware auth:api,checkUserType:SA ,CA'(superAdmin , companyAdmin)
      * @route /allCandidateInfo/delete/{id}
+     * @param \Illuminate\Http\Request $request
+     * @param string $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -193,6 +197,8 @@ class JobApplicationController extends Controller
      * @authentication Requires authentication
      * @middleware auth:api,checkUserType:SA ,CA'(superAdmin , companyAdmin)
      * @route /allCandidatesInfo/delete/{id}
+     * @param \Illuminate\Http\Request $request
+     * @param string $id
      * @return \Illuminate\Http\Response
      */
     public function delete(Request $request, $id)
@@ -237,6 +243,7 @@ class JobApplicationController extends Controller
      * @method GET
      * @author Parth Gupta (Zignuts Technolab)
      * @route /jobsStatus
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function jobsStatus(Request $request)

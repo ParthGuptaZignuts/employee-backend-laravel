@@ -50,6 +50,7 @@ class EmployeeController extends Controller
      * @authentication Requires authentication
      * @middleware auth:api,checkUserType:SA ,CA'(superAdmin , companyAdmin)
      * @route /employees
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
@@ -101,6 +102,7 @@ class EmployeeController extends Controller
      * @authentication Requires authentication
      * @middleware auth:api,checkUserType:SA ,CA'(superAdmin , companyAdmin)
      * @route /employee/create
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -177,6 +179,8 @@ class EmployeeController extends Controller
      * @authentication Requires authentication
      * @middleware auth:api,checkUserType:SA ,CA'(superAdmin , companyAdmin)
      * @route /employee/update/{id}
+     * @param \Illuminate\Http\Request $request
+     * @param string $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, string $id)
@@ -229,6 +233,7 @@ class EmployeeController extends Controller
      * @authentication Requires authentication
      * @middleware auth:api,checkUserType:SA ,CA'(superAdmin , companyAdmin)
      * @route /employee/{id}
+     * @param string $id
      * @return \Illuminate\Http\Response
      */
     public function show(string $id)
@@ -258,6 +263,8 @@ class EmployeeController extends Controller
      * @authentication Requires authentication
      * @middleware auth:api,checkUserType:SA ,CA'(superAdmin , companyAdmin)
      * @route /employee/{id}
+     * @param \Illuminate\Http\Request $request
+     * @param string $id
      * @return \Illuminate\Http\Response
      */
     public function destroy(string $id, Request $request)

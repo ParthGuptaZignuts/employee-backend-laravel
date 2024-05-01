@@ -18,6 +18,7 @@ class AuthenticationController extends Controller
      * @method POST
      * @author Parth Gupta (Zignuts Technolab)
      * @route /register
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function createUser(Request $request)
@@ -56,6 +57,7 @@ class AuthenticationController extends Controller
      * @method POST
      * @author Parth Gupta (Zignuts Technolab)
      * @route /login
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function loginUser(Request $request)
@@ -91,6 +93,7 @@ class AuthenticationController extends Controller
      * @author Parth Gupta (Zignuts Technolab)
      * @authentication Requires authentication
      * @middleware auth:api,
+     * @param \Illuminate\Http\Request $request
      * @route /user
      * @return \Illuminate\Http\Response
      */
@@ -111,6 +114,7 @@ class AuthenticationController extends Controller
      * @author Parth Gupta (Zignuts Technolab)
      * @authentication Requires authentication
      * @middleware auth:api,
+     * @param \Illuminate\Http\Request $request
      * @route /logout
      * @return \Illuminate\Http\Response
      */
@@ -135,6 +139,7 @@ class AuthenticationController extends Controller
      * @method POST
      * @author Parth Gupta (Zignuts Technolab)
      * @route /password/reset
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function resetPassword(Request $request)
