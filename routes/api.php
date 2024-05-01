@@ -41,7 +41,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', 'logout');
         Route::get('/user', 'getUser');
     });
-    
+
     Route::get('/statistics', [StatisticsController::class, 'getStatistics']);
 
     // route with prefix of companies and crud (CREATE READ UPDATE DELETE) of companies
@@ -58,13 +58,17 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // job routes for CRUD (CREATE READ UPDATE DELETE) operations
     Route::middleware('checkUserType:SA,CA')->group(function () {
-        Route::get('jobs', [JobDescriptionController::class, 'index']);
-        Route::prefix('job')->group(function () {
-            Route::post('/create', [JobDescriptionController::class, 'store']);
-            Route::get('/{id}', [JobDescriptionController::class, 'show']);
-            Route::post('/update/{id}', [JobDescriptionController::class, 'update']);
-            Route::post('/delete/{id}', [JobDescriptionController::class, 'destroy']);
+        Route::controller(JobDescriptionController::class)->group(function () {
+            Route::get('jobs', 'index');
+            Route::prefix('job')->group(function () {
+                Route::post('/create', 'store');
+                Route::get('/{id}', 'show');
+                Route::post('/update/{id}', 'update');
+                Route::post('/delete/{id}', 'destroy');
+            });
         });
+       
+        
     });
 
     // employee routes for CRUD (CREATE READ UPDATE DELETE) operations
