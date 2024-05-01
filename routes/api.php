@@ -36,18 +36,24 @@ Route::get("/jobsStatus", [JobApplicationController::class, "JobsStatus"]);
 
 // protected routes
 Route::middleware('auth:sanctum')->group(function () {
-    // routes for logout , get SA and CA statistics and get user
-    Route::post('/logout', [AuthenticationController::class, 'logout']);
-    Route::get('/user', [AuthenticationController::class, 'getUser']);
+
+    Route::controller(AuthenticationController::class)->group(function () {
+        Route::post('/logout', 'logout');
+        Route::get('/user', 'getUser');
+    });
+    
     Route::get('/statistics', [StatisticsController::class, 'getStatistics']);
 
     // route with prefix of companies and crud (CREATE READ UPDATE DELETE) of companies
     Route::middleware('checkUserType:SA')->prefix('/companies')->group(function () {
-        Route::post('/create', [CompanyController::class, 'store']);
-        Route::post('/{id}', [CompanyController::class, 'update']);
-        Route::post('/delete/{id}', [CompanyController::class, 'destroy']);
-        Route::get('', [CompanyController::class, 'index']);
-        Route::get('/{id}', [CompanyController::class, 'show']);
+
+        Route::controller(CompanyController::class)->group(function () {
+            Route::post('/create', 'store');
+            Route::post('/{id}', 'update');
+            Route::post('/delete/{id}', 'destroy');
+            Route::get('', 'index');
+            Route::get('/{id}', 'show');
+        });
     });
 
     // job routes for CRUD (CREATE READ UPDATE DELETE) operations
