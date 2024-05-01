@@ -71,7 +71,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // employee routes for CRUD (CREATE READ UPDATE DELETE) operations
     Route::middleware('checkUserType:SA,CA')->group(function () {
-
         Route::get('getallcompanies', [CompanyController::class, 'getAllCompanies']);
 
         Route::controller(EmployeeController::class)->group(function () {
@@ -83,17 +82,19 @@ Route::middleware('auth:sanctum')->group(function () {
                 Route::post('/update/{id}', 'update');
                 Route::post('/{id}', 'destroy');
             });
-            
         });
     });
 
     // Job application routes for CRUD (CREATE READ UPDATE DELETE) operations 
     Route::middleware('checkUserType:SA,CA')->group(function () {
-        Route::prefix('allCandidateInfo')->group(function () {
-            Route::get('', [JobApplicationController::class, 'getAllDetails']);
-            Route::get('/{id}', [JobApplicationController::class, 'show']);
-            Route::post('/update/{id}', [JobApplicationController::class, 'update']);
-            Route::post('/delete/{id}', [JobApplicationController::class, 'delete']);
+
+        Route::controller(JobApplicationController::class)->group(function () {
+            Route::prefix('allCandidateInfo')->group(function () {
+                Route::get('', 'getAllDetails');
+                Route::get('/{id}', 'show');
+                Route::post('/update/{id}', 'update');
+                Route::post('/delete/{id}', 'delete');
+            });
         });
     });
 

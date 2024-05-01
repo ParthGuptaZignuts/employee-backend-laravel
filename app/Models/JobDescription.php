@@ -30,4 +30,9 @@ class JobDescription extends Model
         return parent::delete();
     }
 
+    public function jobApplications()
+    {
+        return $this->hasMany(JobApplication::class, 'job_descriptions_id');
+    }
+
 }

@@ -82,31 +82,29 @@ class JobApplicationController extends Controller
             $user = Auth::user();
 
             if ($user->type === 'SA') {
-                // Super Admin sees all applications
                 $applications = JobApplication::with(['user', 'company', 'jobDescription'])->get();
             } elseif ($user->type === 'CA') {
-                // Company Admin sees only applications from their own company
                 $applications = JobApplication::with(['user', 'company', 'jobDescription'])
-                    ->where('company_id', $user->company_id) // Filter by the company of the current user
+                    ->where('company_id', $user->company_id)
                     ->get();
             } else {
-                return error('Unauthorized access.', [], 'unauthorized', 403);
+                return response()->json(['error' => 'Unauthorized access'], 403);
             }
 
             $result = $applications->map(function ($application) {
                 return [
                     'application_id' => $application->id,
                     'candidate_name' => $application->user->first_name . ' ' . $application->user->last_name,
-                    'company_name' => $application->company->name,
-                    'job_title' => $application->jobDescription->title,
+                    'company_name' => $application->company ? $application->company->name : 'Unknown', 
+                    'job_title' => $application->jobDescription ? $application->jobDescription->title : 'Unknown',
                     'resume_path' => $application->resume,
                     'status' => $application->status,
                 ];
             });
 
-            return ok('Job applications retrieved successfully.', $result);
+            return response()->json(['message' => 'Job applications retrieved successfully.', 'data' => $result], 200);
         } catch (\Exception $e) {
-            return error('An unexpected error occurred.', [], $e);
+            return response()->json(['error' => 'An error occurred', 'message' => $e->getMessage()], 500);
         }
     }
 

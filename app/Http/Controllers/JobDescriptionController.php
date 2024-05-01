@@ -58,7 +58,7 @@ class JobDescriptionController extends Controller
                 $jobDescriptions = $jobDescriptions->with('company')->get();
             }
 
-            // return response()->json($jobDescriptions);
+            
             return ok('Job descriptions retrieved successfully', $jobDescriptions);
         } catch (\Exception $e) {
             return error('An unexpected error occurred.', [], $e);

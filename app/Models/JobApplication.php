@@ -19,12 +19,14 @@ class JobApplication extends Model
 
     public function company()
     {
-        return $this->belongsTo(Company::class);
+        return $this->belongsTo(Company::class, 'company_id');
     }
+
     public function jobDescription()
     {
-        return $this->belongsTo(JobDescription::class, 'job_descriptions_id'); // Make sure this field name matches your database schema
+        return $this->belongsTo(JobDescription::class, 'job_descriptions_id'); 
     }
+
     public function hardDelete()
     {
         return parent::delete();
