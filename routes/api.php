@@ -67,19 +67,23 @@ Route::middleware('auth:sanctum')->group(function () {
                 Route::post('/delete/{id}', 'destroy');
             });
         });
-       
-        
     });
 
     // employee routes for CRUD (CREATE READ UPDATE DELETE) operations
     Route::middleware('checkUserType:SA,CA')->group(function () {
-        Route::get('employees', [EmployeeController::class, 'index']);
+
         Route::get('getallcompanies', [CompanyController::class, 'getAllCompanies']);
-        Route::prefix('employee')->group(function () {
-            Route::post('/create', [EmployeeController::class, 'store']);
-            Route::get('/{id}', [EmployeeController::class, 'show']);
-            Route::post('/update/{id}', [EmployeeController::class, 'update']);
-            Route::post('/{id}', [EmployeeController::class, 'destroy']);
+
+        Route::controller(EmployeeController::class)->group(function () {
+            Route::get('employees', 'index');
+
+            Route::prefix('employee')->group(function () {
+                Route::post('/create', 'store');
+                Route::get('/{id}', 'show');
+                Route::post('/update/{id}', 'update');
+                Route::post('/{id}', 'destroy');
+            });
+            
         });
     });
 
