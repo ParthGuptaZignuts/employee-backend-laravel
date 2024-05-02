@@ -26,7 +26,6 @@ class CompanyFactory extends Factory
             'name' => substr($originalName, 0, 5),
             'email' => $this->faker->companyEmail,
             'website' => $this->faker->domainName,
-            'logo' => asset('public/logos/logoOne.png'),
             'address' => substr($stateName,0,4),
             'status' => 'A',
         ];
