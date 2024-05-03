@@ -38,8 +38,25 @@ Route::get("jobsInfo", [JobDescriptionController::class, "AllJobsInfo"]);
 // route for getting jobs Status
 Route::get("jobsStatus", [JobApplicationController::class, "JobsStatus"]);
 
+
+
+
+
 // protected routes
 Route::middleware('auth:sanctum')->group(function () {
+
+    Route::middleware('checkUserType:SA')->group(function () {
+
+        Route::controller(AnnoucementController::class)->prefix("announcement")->group(function () {
+            Route::get("/", "index");
+            Route::get("/show/{id}", "show");
+            Route::post("/store", "store");
+            Route::post("/update/{id}", "update");
+            Route::post("/delete/{id}", "destroy");
+        });
+
+    });
+
 
     Route::controller(AuthenticationController::class)->group(function () {
 
