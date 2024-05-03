@@ -10,7 +10,7 @@ require_once app_path('Http/Helpers/APIResponse.php');
 class JobDescriptionController extends Controller
 {
     /**
-     * Method to retrieve job descriptions based on user's role and filters
+     * Method to retrieve all the job and check if search and filters(employeement_type) then return response accordingly this is used in job section in vue.js
      * @method GET
      * @author Parth Gupta (Zignuts Technolab)
      * @authentication Requires authentication
@@ -66,7 +66,7 @@ class JobDescriptionController extends Controller
     }
 
     /**
-     * Method to store a new job description
+     * Method to store a new job
      * @method POST
      * @author Parth Gupta (Zignuts Technolab)
      * @authentication Requires authentication
@@ -109,7 +109,7 @@ class JobDescriptionController extends Controller
         }
     }
     /**
-     * Method to retrieve details of a specific job description
+     * Method to retrieve details of a specific job 
      * @method GET
      * @author Parth Gupta (Zignuts Technolab)
      * @authentication Requires authentication
@@ -191,7 +191,7 @@ class JobDescriptionController extends Controller
     }
 
     /**
-     * Method to delete a job description
+     * Method to delete a job
      * @method POST
      * @author Parth Gupta (Zignuts Technolab)
      * @authentication Requires authentication
@@ -229,7 +229,8 @@ class JobDescriptionController extends Controller
         }
     }
     /**
-     * Method to get all the job descriptions
+     * Method to get all the jobs this is used in candidates pages(nuxt.js) and shows all the job information when candidates has login 
+     * 
      * @method GET
      * @author Parth Gupta (Zignuts Technolab)
      * @route /jobsInfo
@@ -237,6 +238,7 @@ class JobDescriptionController extends Controller
      */
     public function AllJobsInfo()
     {
+        
         try {
             $jobDescriptions = JobDescription::with(['company:id,name,logo,email,address'])->get();
             return ok('All job information retrieved successfully', $jobDescriptions);
