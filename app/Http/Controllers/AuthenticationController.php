@@ -14,37 +14,30 @@ require_once app_path('Http/Helpers/APIResponse.php');
 class AuthenticationController extends Controller
 {
     /**
-     * creating the users for registration
+     * this method is used in candidate page in nuxt to register a user
+     * register the users for registration
      * @method POST
      * @author Parth Gupta (Zignuts Technolab)
      * @route /register
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function createUser(Request $request)
+    public function registerUser(Request $request)
     {
         try {
             // checking validation
-            $validator = $this->validate($request, [
-                'first_name' => 'required|string',
-                'last_name' => 'required|string',
-                'email' => 'required|email|unique:users',
-                'phone' => 'required|string',
-                'dob' => 'required|date',
-                'city' => 'required|string',
-                'password' => 'required|string|confirmed',
+            $request->validate([
+                'first_name'   => 'required|string',
+                'last_name'    => 'required|string',
+                'email'        => 'required|email|unique:users',
+                'phone'        => 'required|string',
+                'dob'          => 'required|date',
+                'city'         => 'required|string',
+                'password'     => 'required|string|confirmed',
             ]);
 
             // creating user
-            $user = User::create([
-                'first_name' => $validator["first_name"],
-                'last_name' => $validator["last_name"],
-                'email' => $validator["email"],
-                'phone' => $validator["phone"],
-                'dob' => $validator["dob"],
-                'city' => $validator["city"],
-                'password' => Hash::make($validator["password"]),
-            ]);
+            $user = User::create($request->only('first_name', 'last_name', 'email', 'phone', 'dob', 'city') + ['password' => Hash::make("password")]);
 
             return ok('User Created Successfully', $user);
         } catch (\Exception $e) {
@@ -69,10 +62,6 @@ class AuthenticationController extends Controller
             $this->validate($request, [
                 'email'    => 'required|email|exists:users',
                 'password' => 'required|string',
-            ], [
-                'email.required'    => 'The email is required.',
-                'email.email'       => 'Please enter a valid email address.',
-                'email.exists'      => 'The specified email does not exist',
             ]);
 
             if (!Auth::attempt($request->only(['email', 'password']))) {
@@ -88,7 +77,7 @@ class AuthenticationController extends Controller
     }
 
     /**
-     * geting all the users
+     * this method is used in vue.js in navbar which shows whether current user is SA or CA(superAdmin or companyAdmin)
      * @method GET
      * @author Parth Gupta (Zignuts Technolab)
      * @authentication Requires authentication
@@ -135,14 +124,14 @@ class AuthenticationController extends Controller
         }
     }
     /**
-     * resting the password of the users
+     * this method is used to set the password for companyAdmin and Employee because by default password is "password"
      * @method POST
      * @author Parth Gupta (Zignuts Technolab)
      * @route /password/reset
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function resetPassword(Request $request)
+    public function setPassword(Request $request)
     {
         try {
             // checking validation 
@@ -165,7 +154,6 @@ class AuthenticationController extends Controller
             return $status === Password::PASSWORD_RESET
                 ? ok('Password reset successfully.')
                 : error('Invalid token or email. Please request a new reset link.', [], 'error');
-                
         } catch (\Exception $e) {
             return error('An unexpected error occurred.', [], $e);
         }

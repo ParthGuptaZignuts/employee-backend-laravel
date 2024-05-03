@@ -298,7 +298,7 @@ class CompanyController extends Controller
         }
     }
     /**
-     * getting all the companies with logos (with token), getting 4 companies with logos (without token) , this is for candidates pages which is in nuxt 
+     * getting all the companies with logos (with token), getting 4 companies with logos (without token) , this is for candidates pages (showing in landing page and when the user is logged in)
      * @method GET
      * @author Parth Gupta (Zignuts Technolab)
      * @route /companyWithLogo

@@ -21,11 +21,11 @@ use Illuminate\Support\Facades\Route;
 // public routes
 
 // route for registering
-Route::post('/register', [AuthenticationController::class, 'createUser']);
+Route::post('/register', [AuthenticationController::class, 'registerUser']);
 // route for login
 Route::post('/login', [AuthenticationController::class, 'loginUser']);
 // route for password reset
-Route::post('/password/reset', [AuthenticationController::class, 'resetPassword']);
+Route::post('/password/set', [AuthenticationController::class, 'setPassword']);
 // route for getting the company detials 
 Route::get('/companyinfo', [CompanyController::class, 'companyWithLogo']);
 // route for getting all jobs detials
@@ -38,8 +38,8 @@ Route::get("/jobsStatus", [JobApplicationController::class, "JobsStatus"]);
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::controller(AuthenticationController::class)->group(function () {
-        Route::post('/logout', 'logout');
         Route::get('/user', 'getUser');
+        Route::post('/logout', 'logout');
     });
 
     Route::get('/statistics', [StatisticsController::class, 'getStatistics']);
