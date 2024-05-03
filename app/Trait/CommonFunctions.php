@@ -1,5 +1,5 @@
 <?php
- namespace App\Trait\CommonFunction;
+ namespace App\Trait;
 
 use App\Models\Preference;
 

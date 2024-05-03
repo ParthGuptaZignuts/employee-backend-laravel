@@ -48,11 +48,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('checkUserType:SA')->prefix('/companies')->group(function () {
 
         Route::controller(CompanyController::class)->group(function () {
-            Route::post('/create', 'store');
-            Route::post('/{id}', 'update');
-            Route::post('/delete/{id}', 'destroy');
             Route::get('', 'index');
-            Route::get('/{id}', 'show');
+            Route::get('show/{id}', 'show');
+            Route::post('/create', 'store');
+            Route::post('update/{id}', 'update');
+            Route::post('/delete/{id}', 'destroy');
         });
     });
 
