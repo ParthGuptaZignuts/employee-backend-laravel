@@ -136,9 +136,9 @@ class AuthenticationController extends Controller
         try {
             // checking validation 
             $request->validate([
-                'email' => 'required|email',
-                'token' => 'required|string',
-                'password' => 'required|string|confirmed',
+                'email'      => 'required|email',
+                'token'      => 'required|string',
+                'password'   => 'required|string|confirmed',
             ]);
 
             // resetting the password
