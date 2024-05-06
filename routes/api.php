@@ -45,6 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('user', 'getUser');
         Route::post('logout', 'logout');
+
     });
 
     Route::get('statistics', [StatisticsController::class, 'getStatistics']);
@@ -59,23 +60,31 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('create', 'store');
             Route::post('update/{id}', 'update');
             Route::post('delete/{id}', 'destroy');
+
         });
+
     });
 
     // employee routes for CRUD (CREATE READ UPDATE DELETE) operations
     Route::middleware('checkUserType:SA,CA')->group(function () {
+
         Route::get('getallcompanies', [CompanyController::class, 'getAllCompanies']);
 
         Route::controller(EmployeeController::class)->group(function () {
+
             Route::get('employees', 'index');
 
             Route::prefix('employee')->group(function () {
+
                 Route::post('/create', 'store');
                 Route::get('/{id}', 'show');
                 Route::post('/update/{id}', 'update');
                 Route::post('/{id}', 'destroy');
+                
             });
+
         });
+
     });
 
     // job routes for CRUD (CREATE READ UPDATE DELETE) operations
@@ -91,21 +100,29 @@ Route::middleware('auth:sanctum')->group(function () {
                 Route::post('create', 'store');
                 Route::post('update/{id}', 'update');
                 Route::post('delete/{id}', 'destroy');
+
             });
+
         });
+
     });
 
     // Job application routes for CRUD (CREATE READ UPDATE DELETE) operations 
     Route::middleware('checkUserType:SA,CA')->group(function () {
 
         Route::controller(JobApplicationController::class)->group(function () {
+
             Route::prefix('allCandidateInfo')->group(function () {
+
                 Route::get('', 'getAllDetails');
                 Route::get('/{id}', 'show');
                 Route::post('/update/{id}', 'update');
                 Route::post('/delete/{id}', 'delete');
+
             });
+
         });
+
     });
 
     Route::post("/userJobDetails", [JobApplicationController::class, 'store']);

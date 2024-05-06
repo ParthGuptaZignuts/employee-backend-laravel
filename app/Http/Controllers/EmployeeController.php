@@ -6,43 +6,17 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use App\Models\Preference;
 use App\Models\Company;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\EmployeeInvitaion;
 use Illuminate\Support\Facades\Password;
+use App\Http\Helpers\GenerateEmployeeNumber;
 
 require_once app_path('Http/Helpers/APIResponse.php');
 
 class EmployeeController extends Controller
 {
-    // Method to generate a unique employee number
-    public function generateEmployeeNumber(): string
-    {
-        try {
-            // Retrieve the latest employee number preference
-            $latestEmployeeNumberPref = Preference::where('code', 'EMP')->first();
-
-            // If a preference exists, increment the latest employee number and save it
-            if ($latestEmployeeNumberPref) {
-                $latestEmployeeNumber = (int)$latestEmployeeNumberPref->value;
-                $nextEmployeeNumber = 'EMP' . str_pad($latestEmployeeNumber + 1, 5, '0', STR_PAD_LEFT);
-                $latestEmployeeNumberPref->value = $latestEmployeeNumber + 1;
-                $latestEmployeeNumberPref->save();
-            } else { // If no preference exists, start with EMP00001
-                $nextEmployeeNumber = 'EMP00001';
-                $latestEmployeeNumberPref = new Preference();
-                $latestEmployeeNumberPref->code = 'EMP';
-                $latestEmployeeNumberPref->value = 1;
-                $latestEmployeeNumberPref->save();
-            }
-
-            return $nextEmployeeNumber;
-        } catch (\Exception $e) {
-            return error('An unexpected error occurred.', [], $e);
-        }
-    }
-
+    
     /**
      * filtering the employees , returns on the basis of types, get all employees 
      * @method GET
@@ -110,14 +84,14 @@ class EmployeeController extends Controller
         try {
             // Validation rules for employee creation
             $validator = Validator::make($request->all(), [
-                'company_id' => 'required|exists:companies,id',
-                'first_name' => 'required|string',
-                'last_name' => 'required|string',
-                'email' => 'required|email|unique:users,email',
-                'address' => 'required|string',
-                'city' => 'required|string',
-                'dob' => 'required|date',
-                'joining_date' => 'required|date',
+                'company_id'    => 'required|exists:companies,id',
+                'first_name'    => 'required|string',
+                'last_name'     => 'required|string',
+                'email'         => 'required|email|unique:users,email',
+                'address'       => 'required|string',
+                'city'          => 'required|string',
+                'dob'           => 'required|date',
+                'joining_date'  => 'required|date',
             ]);
 
             // If validation fails, return error response
@@ -133,20 +107,9 @@ class EmployeeController extends Controller
 
             // Check user's role for authorization to create employee
             if (auth()->user()->type === 'SA' || (auth()->user()->type === 'CA' && auth()->user()->company_id === $request->company_id)) {
-                // Create new user with employee role
-                $user = new User();
-                $user->type = 'E';
-                $user->company_id = $request->company_id;
-                $user->first_name = $request->first_name;
-                $user->last_name = $request->last_name;
-                $user->email = $request->email;
-                $user->password = Hash::make("password");
-                $user->address = $request->address;
-                $user->city = $request->city;
-                $user->dob = $request->dob;
-                $user->joining_date = $request->joining_date;
-                $user->employee_number = $this->generateEmployeeNumber();
-                $user->save();
+           
+                $user = User::create($request->only('company_id' , 'first_name' , 'last_name' , 'email' , 'address' , 'city ' , 'dob' , 'joining_date')+['password' => Hash::make('password'),'type' => 'E' ,'employee_number' =>GenerateEmployeeNumber::generateEmployeeNumber()]);
+
 
                 // Generate password reset token
                 $token = Password::createToken($user);
@@ -192,13 +155,13 @@ class EmployeeController extends Controller
             if (auth()->user()->type === 'SA' || (auth()->user()->type === 'CA' && auth()->user()->company_id === $user->company_id)) {
                 // Validation rules for updating employee details
                 $validator = Validator::make($request->all(), [
-                    'first_name' => 'required|string',
-                    'last_name' => 'required|string',
-                    'email' => 'required|email|unique:users,email,' . $id,
-                    'address' => 'required|string',
-                    'city' => 'required|string',
-                    'dob' => 'required|date',
-                    'joining_date' => 'required|date',
+                    'first_name'    => 'required|string',
+                    'last_name'     => 'required|string',
+                    'email'         => 'required|email|unique:users,email,' . $id,
+                    'address'       => 'required|string',
+                    'city'          => 'required|string',
+                    'dob'           => 'required|date',
+                    'joining_date'  => 'required|date',
                 ]);
 
                 // If validation fails, return error response
@@ -207,15 +170,8 @@ class EmployeeController extends Controller
                 }
 
                 // Update employee details
-                $user->update([
-                    'first_name' => $request->first_name,
-                    'last_name' => $request->last_name,
-                    'email' => $request->email,
-                    'address' => $request->address,
-                    'city' => $request->city,
-                    'dob' => $request->dob,
-                    'joining_date' => $request->joining_date,
-                ]);
+               
+                $user->update($request->only('first_name', 'last_name', 'email', 'address','city', 'dob', 'joining_date'));
 
                 return ok('User updated successfully');
             } else {
