@@ -110,7 +110,6 @@ class EmployeeController extends Controller
            
                 $user = User::create($request->only('company_id' , 'first_name' , 'last_name' , 'email' , 'address' , 'city ' , 'dob' , 'joining_date')+['password' => Hash::make('password'),'type' => 'E' ,'employee_number' =>GenerateEmployeeNumber::generateEmployeeNumber()]);
 
-
                 // Generate password reset token
                 $token = Password::createToken($user);
                 $resetLink = url('http://localhost:5173/resetPassword/' . $token);

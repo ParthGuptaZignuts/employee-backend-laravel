@@ -76,11 +76,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
             Route::prefix('employee')->group(function () {
 
-                Route::post('/create', 'store');
-                Route::get('/{id}', 'show');
-                Route::post('/update/{id}', 'update');
-                Route::post('/{id}', 'destroy');
-                
+                Route::get('show/{id}', 'show');
+                Route::post('create', 'store');
+                Route::post('update/{id}', 'update');
+                Route::post('delete/{id}', 'destroy');
+
             });
 
         });

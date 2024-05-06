@@ -80,13 +80,13 @@ class JobDescriptionController extends Controller
         try {
             // Validation rules
             $rules = [
-                'title' => 'required|string',
-                'salary' => 'nullable|numeric',
-                'employment_type' => 'required|string',
-                'experience_required' => 'nullable|string',
-                'skills_required' => 'nullable|string',
-                'posted_date' => 'nullable|date',
-                'expiry_date' => 'nullable|date',
+                'title'                => 'required|string',
+                'salary'               => 'nullable|numeric',
+                'employment_type'      => 'required|string',
+                'experience_required'  => 'nullable|string',
+                'skills_required'      => 'nullable|string',
+                'posted_date'          => 'nullable|date',
+                'expiry_date'          => 'nullable|date',
             ];
 
             // If the user is a super admin, add validation rule for company_id
@@ -152,13 +152,13 @@ class JobDescriptionController extends Controller
         try {
             // Validation rules
             $rules = [
-                'title' => 'sometimes|string|max:255',
-                'description' => 'sometimes|string',
-                'salary' => 'sometimes|nullable|numeric',
-                'employment_type' => 'sometimes|nullable|string',
-                'experience_required' => 'sometimes|nullable|string',
-                'skills_required' => 'sometimes|nullable|string',
-                'expiry_date' => 'sometimes|nullable|date',
+                'title'                 => 'sometimes|string|max:255',
+                'description'           => 'sometimes|string',
+                'salary'                => 'sometimes|nullable|numeric',
+                'employment_type'       => 'sometimes|nullable|string',
+                'experience_required'   => 'sometimes|nullable|string',
+                'skills_required'       => 'sometimes|nullable|string',
+                'expiry_date'           => 'sometimes|nullable|date',
             ];
 
             // If the user is a company admin, add validation rule for company_id
@@ -229,8 +229,7 @@ class JobDescriptionController extends Controller
         }
     }
     /**
-     * Method to get all the jobs this is used in candidates pages(nuxt.js) and shows all the job information when candidates has login 
-     * 
+     * Method to get all the jobs this is used in candidates pages(nuxt.js) and shows all the job information when candidates has  login 
      * @method GET
      * @author Parth Gupta (Zignuts Technolab)
      * @route /jobsInfo
