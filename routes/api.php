@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\JobDescription;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
@@ -32,11 +30,6 @@ Route::post('password/set', [AuthenticationController::class, 'setPassword']);
 // route for getting the company detials 
 Route::get('companyinfo', [CompanyController::class, 'companyWithLogo']);
 
-// route for getting all jobs detials
-Route::get("jobsInfo", [JobDescriptionController::class, "AllJobsInfo"]);
-
-// route for getting jobs Status
-Route::get("jobsStatus", [JobApplicationController::class, "JobsStatus"]);
 
 // protected routes
 Route::middleware('auth:sanctum')->group(function () {
@@ -45,10 +38,16 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('user', 'getUser');
         Route::post('logout', 'logout');
-
+        
     });
 
     Route::get('statistics', [StatisticsController::class, 'getStatistics']);
+
+    // route for getting all jobs detials
+    Route::get("jobsInfo", [JobDescriptionController::class, "AllJobsInfo"]);
+
+    // route for getting jobs Status
+    Route::get("jobsStatus", [JobApplicationController::class, "JobsStatus"]);
 
     // route with prefix of companies and crud (CREATE READ UPDATE DELETE) of companies
     Route::middleware('checkUserType:SA')->prefix('/companies')->group(function () {
@@ -115,9 +114,9 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::prefix('allCandidateInfo')->group(function () {
 
                 Route::get('', 'getAllDetails');
-                Route::get('/{id}', 'show');
-                Route::post('/update/{id}', 'update');
-                Route::post('/delete/{id}', 'delete');
+                Route::get('show/{id}', 'show');
+                Route::post('update/{id}', 'update');
+                Route::post('delete/{id}', 'delete');
 
             });
 
@@ -126,4 +125,5 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::post("/userJobDetails", [JobApplicationController::class, 'store']);
+
 });

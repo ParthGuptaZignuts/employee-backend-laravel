@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use App\Models\JobApplication;
 use App\Models\User;
 use App\Models\JobDescription;
@@ -28,9 +27,9 @@ class JobApplicationController extends Controller
         try {
             // Validate input and ensure the resume is provided and is a file
             $validatedData = $request->validate([
-                'email' => 'required|email',
+                'email'               => 'required|email',
                 'job_descriptions_id' => 'required|integer',
-                'resume' => 'required|file|mimes:pdf,doc,docx|max:10240',
+                'resume'              => 'required|file|mimes:pdf,doc,docx|max:10240',
             ]);
             // finding the user
             $user = User::where('email', $validatedData['email'])->firstOrFail();
@@ -54,11 +53,11 @@ class JobApplicationController extends Controller
 
             // Create a new job application with the resume path
             $application = JobApplication::create([
-                'user_id' => $user->id,
-                'company_id' => $companyId,
-                'job_descriptions_id' => $validatedData['job_descriptions_id'],
-                'resume' => $resumePath,
-                'status' => $validatedData['status'] ?? 'P', // Default to 'Pending' if not provided
+                'user_id'                   => $user->id,
+                'company_id'                => $companyId,
+                'job_descriptions_id'       => $validatedData['job_descriptions_id'],
+                'resume'                    => $resumePath,
+                'status'                    => $validatedData['status'] ?? 'P',
             ]);
 
             return ok('Job application created successfully.', $application, 201);
@@ -93,12 +92,12 @@ class JobApplicationController extends Controller
 
             $result = $applications->map(function ($application) {
                 return [
-                    'application_id' => $application->id,
-                    'candidate_name' => $application->user->first_name . ' ' . $application->user->last_name,
-                    'company_name' => $application->company ? $application->company->name : 'Unknown', 
-                    'job_title' => $application->jobDescription ? $application->jobDescription->title : 'Unknown',
-                    'resume_path' => $application->resume,
-                    'status' => $application->status,
+                    'application_id'        => $application->id,
+                    'candidate_name'        => $application->user->first_name . ' ' . $application->user->last_name,
+                    'company_name'          => $application->company ? $application->company->name : 'Unknown', 
+                    'job_title'             => $application->jobDescription ? $application->jobDescription->title : 'Unknown',
+                    'resume_path'           => $application->resume,
+                    'status'                => $application->status,
                 ];
             });
 
@@ -135,12 +134,12 @@ class JobApplicationController extends Controller
 
             // creating the needed result
             $result = [
-                'application_id' => $application->id,
-                'candidate_name' => $application->user->first_name . ' ' . $application->user->last_name,
-                'company_name' => $application->company->name,
-                'job_title' => $application->jobDescription->title,
-                'resume_path' => $application->resume,
-                'status' => $application->status,
+                'application_id'        => $application->id,
+                'candidate_name'        => $application->user->first_name . ' ' . $application->user->last_name,
+                'company_name'          => $application->company->name,
+                'job_title'             => $application->jobDescription->title,
+                'resume_path'           => $application->resume,
+                'status'                => $application->status,
             ];
 
             return ok('Job application retrieved successfully.', $result);
@@ -264,13 +263,14 @@ class JobApplicationController extends Controller
             // generating the needful result
             $result = $applications->map(function ($application) {
                 return [
-                    'application_id' => $application->id,
-                    'job_title' => $application->jobDescription->title,
-                    'company_name' => $application->company->name,
-                    'company_location' => $application->company->address,
-                    'job_expiry' => $application->jobDescription->expiry_date,
-                    'job_salary' => $application->jobDescription->salary,
-                    'status' => $application->status,
+                    'application_id'    => $application->id,
+                    'job_title'         => $application->jobDescription->title,
+                    'company_name'      => $application->company->name,
+                    'company_location'  => $application->company->address,
+                    'job_expiry'        => $application->jobDescription->expiry_date,
+                    'job_salary'        => $application->jobDescription->salary,
+                    'status'            => $application->status,
+                    'resume'            => $application->resume,
                 ];
             });
 
